@@ -1,0 +1,13 @@
+export const $ = (s, r = document) => r.querySelector(s);
+export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+export const pad = n => String(n).padStart(2, '0');
+export const todayISO = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+export const parseISO = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
+export const addDays = (iso, n) => { const d = parseISO(iso); d.setDate(d.getDate() + n); return todayISO(d); };
+export const dayNumber = iso => { const [y, m, d] = iso.split('-').map(Number); return Math.floor((Date.UTC(y, m - 1, d) - Date.UTC(2026, 0, 1)) / 864e5); };
+export const mod = (n, m) => ((n % m) + m) % m;
+export const fmtDate = iso => parseISO(iso).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+export const debounce = (fn, ms = 300) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+export const hue = (bookIndex) => Math.round((bookIndex / 66) * 300);
+export const bookColor = (i, l = 62) => `hsl(${hue(Math.min(i, 65))} 78% ${l}%)`;

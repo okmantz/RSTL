@@ -1,0 +1,15 @@
+{
+  "name": "Beneath the Deep — Rigorous Bible Study",
+  "short_name": "Beneath the Deep",
+  "description": "Read Scripture with rainbow cross-references and descend into a daily study that doesn't flinch.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a0c11",
+  "theme_color": "#0a0c11",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

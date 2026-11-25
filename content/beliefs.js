@@ -1,0 +1,41 @@
+export const LABELS = ['Strongly disagree', 'Disagree', 'Unsure / both', 'Agree', 'Strongly agree'];
+export const DOMAINS = [
+  { id: 'scr', n: 'Scripture', sub: 'what the Bible is' },
+  { id: 'god', n: 'God', sub: 'who and how' },
+  { id: 'chr', n: 'Christ', sub: 'person and work' },
+  { id: 'evl', n: 'Evil', sub: 'suffering, Satan, sin' },
+  { id: 'aft', n: 'Afterlife', sub: 'soul, death, judgment' },
+  { id: 'eth', n: 'Ethics', sub: 'how texts bind' },
+  { id: 'fth', n: 'Faith', sub: 'knowing and trusting' }
+];
+export const PROPS = [
+  { id: 's1', d: 'scr', t: 'The Bible contains no factual or historical errors in its original manuscripts.' },
+  { id: 's2', d: 'scr', t: 'The Bible is best read as an anthology of human witnesses to God, not as dictated words.' },
+  { id: 's3', d: 'scr', t: 'The books that made it into the canon were the right books — and the right ones were left out.' },
+  { id: 's4', d: 'scr', t: 'Parts of the New Testament attributed to Paul or the apostles were written by later authors in their names, and that does not undermine their authority.' },
+  { id: 'g1', d: 'god', t: 'God is one being in three persons, and this is clearly taught in Scripture.' },
+  { id: 'g2', d: 'god', t: 'God knows and has ordained everything that will happen, including every human choice.' },
+  { id: 'g3', d: 'god', t: 'Israel’s early religion changed over time — from honouring many gods, to one God above others, to one God alone — and this is compatible with divine revelation.' },
+  { id: 'g4', d: 'god', t: 'God’s hiddenness is evidence against a God who wants to be known.' },
+  { id: 'c1', d: 'chr', t: 'Jesus rose bodily from the dead, and the tomb was empty.' },
+  { id: 'c2', d: 'chr', t: 'Jesus himself taught that he was God, in the same sense as the later creeds.' },
+  { id: 'c3', d: 'chr', t: 'The cross is essentially a penal substitution: Jesus bore the punishment humans deserved.' },
+  { id: 'c4', d: 'chr', t: 'Salvation comes through explicit faith in Jesus; those who never hear of him are in serious jeopardy.' },
+  { id: 'e1', d: 'evl', t: 'Satan is a real personal being who tempts and deceives humans.' },
+  { id: 'e2', d: 'evl', t: 'Human free will fully explains why a good, all-powerful God permits evil.' },
+  { id: 'e3', d: 'evl', t: 'Everyone is born guilty or corrupted because of Adam’s sin.' },
+  { id: 'e4', d: 'evl', t: 'The Canaanite conquest narratives record what God actually commanded.' },
+  { id: 'a1', d: 'aft', t: 'Hell is eternal conscious torment.' },
+  { id: 'a2', d: 'aft', t: 'In the end God will reconcile all people to himself.' },
+  { id: 'a3', d: 'aft', t: 'Humans have an immaterial soul that can exist apart from the body.' },
+  { id: 'a4', d: 'aft', t: 'The Bible’s picture of the future is a renewed physical earth, not an escape to heaven.' },
+  { id: 'h1', d: 'eth', t: 'Biblical commands about slavery were culturally accommodated, and the Bible’s own trajectory points beyond them.' },
+  { id: 'h2', d: 'eth', t: 'Women may hold any office of teaching and leadership in the church.' },
+  { id: 'h3', d: 'eth', t: 'The Bible’s sexual ethics, as traditionally read, still bind Christians in full.' },
+  { id: 'h4', d: 'eth', t: 'If God commanded something that looks evil by our best moral reasoning, we should doubt our reasoning rather than the command.' },
+  { id: 'f1', d: 'fth', t: 'Faith is trust, not intellectual assent; one can be a Christian with significant doubts.' },
+  { id: 'f2', d: 'fth', t: 'Prayer changes outcomes in the world, not only the person who prays.' },
+  { id: 'f3', d: 'fth', t: 'It is reasonable to remain Christian while granting that other religions contain real truth and real encounters with God.' },
+  { id: 'f4', d: 'fth', t: 'If I had been born in another time and place, I would almost certainly hold a different religion — and that is a serious problem for my confidence.' },
+  { id: 'f5', d: 'fth', t: 'Honest inquiry could lead me out of Christianity, and I would follow it.' }
+];
