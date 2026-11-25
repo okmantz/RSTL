@@ -1,5 +1,5 @@
 /* Service worker: network-first for app code, cache-first for (immutable) Bible data. Bump VERSION on release. */
-const VERSION = 'rstl-v2';
+const VERSION = 'rstl-v3';
 const CODE = VERSION + '-code', DATA = VERSION + '-data';
 const SHELF = ['./', 'index.html', 'css/app.css', 'js/app.js', 'js/icons.js', 'js/store.js', 'manifest.webmanifest', 'icons/icon.svg'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CODE).then(c => c.addAll(SHELF)).then(() => self.skipWaiting())); });

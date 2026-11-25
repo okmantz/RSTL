@@ -6,7 +6,7 @@ desc: 'How the Bible was written, copied, collected and argued over, and what �
 lessons: [
 {
 t: `Who Wrote the Torah?`, k: `Pentateuch · Documentary hypothesis`, ref: [`Deuteronomy 34:5-8`, `Genesis 12:6`, `Numbers 12:3`],
-tag: `The first five books never claim Moses wrote them, and some verses are hard to read as his.`,
+tag: `The first five books never say that Moses wrote all of them, and some verses are hard to read as his.`,
 c: [`Moses wrote the first five books.`],
 f: [`Deuteronomy 34 narrates Moses’ death and burial and says no one knows his grave “to this day.” Numbers 12:3 calls Moses “very meek, more than all people,” which is odd self-description. Genesis 12:6 says “the Canaanites were then in the land,” a remark from someone for whom they no longer were. Genesis 36:31 lists “kings who reigned in Edom before any king reigned over the Israelites,” which presupposes a monarchy. Medieval rabbis such as Ibn Ezra hinted at these problems. Spinoza said it openly in 1670.`],
 d: [`**Doublets and contradictions.** Two creation accounts, two flood accounts spliced together (7 pairs or 2 of each clean animal; 40 days or 150), two versions of Sarah in a king’s house, two names for God that cluster in different strands. Wellhausen (1878) systematised four sources: J, E, P, D. Modern scholars debate the details, and some prefer fragments or supplements, but few specialists defend full Mosaic authorship.`, `**What the tradition says.** Jewish and Christian tradition ascribed the Torah to Moses; Jesus speaks of “Moses wrote about me” (John 5:46). Conservative scholars (Kenneth Kitchen, Gordon Wenham) allow that Moses stands behind a core, with later editing. The dispute is about degree.`],

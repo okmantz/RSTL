@@ -4,7 +4,7 @@ export const CATS = [
   { id: 'apocrypha', n: 'The Apocrypha', sub: 'Deuterocanonical books (Catholic and Orthodox canons; read by Anglicans and Lutherans for edification)',
     note: 'All fourteen books below are in the app’s KJV text. Open them in the reader and the cross-reference web works on them too.',
     items: [
-      ['Tobit', 'c. 225–175 BCE', 'A family story of exile, burial of the dead, a demon, a fish and a journey. Prayers for the dead and angelic intercession are rooted here.', { rd: 68 }],
+      ['Tobit', 'c. 225–175 BCE', 'A family story of exile, burial of the dead, a demon, a fish and a journey. Burial of the dead and angelic intercession (12:12) are central.', { rd: 68 }],
       ['Judith', 'c. 150–100 BCE', 'A widow beheads an enemy general. Historically garbled on purpose, probably: it reads like a parable of faithful resistance.', { rd: 69 }],
       ['Wisdom of Solomon', 'c. 30 BCE–50 CE', 'Jewish wisdom speaking Greek philosophy’s language. The Righteous One of chapter 2 is often read next to the Passion story.', { rd: 71 }],
       ['Sirach (Ecclesiasticus)', 'c. 180 BCE', 'Ben Sira’s long book of wisdom, manners and praise. The author names himself at the end (50:27).', { rd: 72 }],
@@ -13,7 +13,7 @@ export const CATS = [
       ['2 Maccabees', 'c. 100 BCE', 'The same crisis told as martyrdom and resurrection hope. Compare Hebrews 11:35.', { rd: 79 }],
       ['Prayer of Manasseh', '1st c. BCE–1st c. CE', 'A very short penitential prayer attributed to Judah’s worst king. Appended to the Vulgate.', { rd: 77 }],
       ['Susanna, Bel and the Dragon, Prayer of Azariah', 'Greek additions to Daniel', 'Detective story, satire of idols, and a hymn from the furnace.', { rd: 75 }],
-      ['1 and 2 Esdras', '1st c. CE onward', '2 Esdras (4 Ezra) is a post-70 CE apocalypse wrestling with why Israel suffers while Rome prospers.', { rd: 67 }]
+      ['1 and 2 Esdras', '1 Esdras 2nd c. BCE; 2 Esdras c. 100 CE', '2 Esdras (4 Ezra) is a post-70 CE apocalypse wrestling with why Israel suffers while Rome prospers.', { rd: 67 }]
     ] },
   { id: 'canon', n: 'Canon and Manuscripts', sub: 'How the lists of Scripture were made',
     items: [
@@ -64,7 +64,7 @@ export const CATS = [
       ['Epic of Gilgamesh', 'Standard version c. 1200 BCE', 'Flood story, a king’s grief, and a plant of life lost to a snake. Compare Genesis 6–9.', { u: 'https://www.sacred-texts.com', s: 'Sacred Texts (E. A. Speiser, G. Smith)' }],
       ['Enuma Elish', 'c. 1100 BCE', 'Babylonian creation epic. Often set beside Genesis 1; scholars disagree about direct dependence.', {}],
       ['Code of Hammurabi', 'c. 1754 BCE', 'Law collection often compared with Exodus 21–23.', {}],
-      ['Ugaritic Baal Cycle', 'c. 1400–1200 BCE', 'Canaanite myths whose language echoes in the Psalms.', { u: 'https://etcsl.orinst.ox.ac.uk', s: 'Oxford ETCSL (Sumerian)' }],
+      ['Ugaritic Baal Cycle', 'c. 1400–1200 BCE', 'Canaanite myths whose language echoes in the Psalms.', {}],
       ['Instruction of Amenemope', 'c. 1200 BCE', 'Egyptian wisdom with close parallels to Proverbs 22–24.', {}],
       ['Moabite Stone and Tel Dan Stele', '9th c. BCE', 'Inscriptions that mention Israel and, probably, “the house of David.”', {}]
     ] },

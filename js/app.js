@@ -6,6 +6,7 @@ import { checkAch } from './ach.js';
 import { unitActions } from './unit.js';
 import { $, $$, esc, debounce, todayISO } from './util.js';
 import { ic } from './icons.js';
+import { avatarHTML } from './avatar.js';
 
 hook(toast, checkAch);
 applyPrefs(S);
@@ -14,7 +15,7 @@ const V = {
   home: () => import('./views/home.js'), daily: () => import('./views/daily.js'), read: () => import('./views/read.js'),
   study: () => import('./views/study.js'), questions: () => import('./views/questions.js'), lab: () => import('./views/lab.js'),
   beliefs: () => import('./views/beliefs.js'), library: () => import('./views/library.js'), profile: () => import('./views/profile.js'), search: () => import('./views/search.js'),
-  welcome: () => import('./views/welcome.js'), journal: () => import('./views/journal.js'), resources: () => import('./views/resources.js')
+  welcome: () => import('./views/welcome.js'), journal: () => import('./views/journal.js'), resources: () => import('./views/resources.js'), word: () => import('./views/word.js')
 };
 const ROUTES = [
   [/^\/?$/, 'home', m => m.view, 'home'],
@@ -27,6 +28,7 @@ const ROUTES = [
   [/^\/read\/(\d+)\/?$/, 'read', m => m.bookView, 'read'],
   [/^\/read\/(\d+)\/(\d+)\/?$/, 'read', m => m.view, 'read'],
   [/^\/search\/?$/, 'search', m => m.view, 'read'],
+  [/^\/word\/([\w%]+)\/?$/, 'word', m => m.view, 'read'],
   [/^\/study\/?$/, 'study', m => m.hubView, 'study'],
   [/^\/study\/tracks\/?$/, 'study', m => m.tracksView, 'study'],
   [/^\/study\/seminar\/?$/, 'study', m => (c) => m.trackView({ ...c, p1: 'seminar' }), 'study'],
@@ -87,7 +89,7 @@ document.addEventListener('click', e => {
   const fn = ACTIONS[el.dataset.act];
   if (fn) { if (el.tagName === 'BUTTON') e.preventDefault(); fn(el, e); }
 });
-document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.v[data-act]')) { e.preventDefault(); ACTIONS[e.target.dataset.act]?.(e.target, e); } });
+document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.v[data-act], .ow[data-act]')) { e.preventDefault(); ACTIONS[e.target.dataset.act]?.(e.target, e); } });
 window.addEventListener('hashchange', () => render(false));
 window.addEventListener('app:rerender', () => render(true));
 window.addEventListener('unit:done', async e => { if (String(e.detail).startsWith('lesson:')) { try { (await V.study()).checkTrack(e.detail); } catch (er) { } } });
@@ -100,7 +102,8 @@ function chrome() {
   $('#search-btn').innerHTML = ic('search');
   refreshChip();
 }
-function refreshChip() { const li = levelInfo(); $('#xp-chip').innerHTML = `Lv ${li.level} · ${ic('flame')} ${streak()}`; }
+function refreshChip() { const li = levelInfo(); $('#xp-chip').innerHTML = `<a class="chip-av" href="#/profile" aria-label="Profile">${avatarHTML('xs')}</a>Lv ${li.level} · ${ic('flame')} ${streak()}`; }
+window.addEventListener('app:avatar', refreshChip);
 setInterval(refreshChip, 4000);
 (async () => {
   main.innerHTML = loading('Opening the library…');

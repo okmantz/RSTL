@@ -94,7 +94,7 @@ export const TRADS = {
     ]
   },
   oth: {
-    n: 'Jewish, Muslim or another faith', start: 'origins', tracks: ['mountains', 'canon', 'ethics'], voices: ['quran112', 'akhnai', 'rabia'], res: ['jewish', 'world', 'ane', 'scholar'],
+    n: 'Jewish or Muslim', start: 'origins', tracks: ['mountains', 'canon', 'ethics'], voices: ['quran112', 'akhnai', 'rabia'], res: ['jewish', 'world', 'ane', 'scholar'],
     hello: 'Many of these texts are shared, contested or answered by your own tradition. They are read here with that conversation in view, and with respect for how you already read them.',
     sit: ['Reflect', 'How would someone in your tradition pray over or meditate on a passage like this? Try writing in that voice.'],
     tq: [
@@ -119,6 +119,19 @@ export const TRADS = {
       'How does this passage treat suffering, desire or attachment compared with texts you already love?'
     ]
   },
+  other: {
+    n: 'Other', start: 'origins', tracks: ['canon', 'mountains', 'ethics'], voices: ['gita', 'tao', 'enoch'], res: ['world', 'canon', 'scholar', 'lit'],
+    hello: 'However you would describe yourself, you are welcome here. You will get the text, the history behind it, and the strongest arguments on several sides, with other traditions beside it for comparison.',
+    sit: ['Reflect', 'Write what this passage asks of a reader, and what you make of that.'],
+    tq: [
+      'What do you notice that you think a first-time reader would miss?',
+      'How would a reader from your own background hear this passage differently from how it was first heard?',
+      'What would change your reading of this passage?',
+      'What is the strongest objection to how you currently read this?',
+      'Which other text, from any tradition, does this one argue with or echo?',
+      'What would you want to ask the author?'
+    ]
+  },
   none: {
     n: 'Not sure, or prefer not to say', start: 'gospels', tracks: ['canon', 'jesus', 'trial'], voices: ['enoch', 'gilgamesh', 'kierk'], res: ['canon', 'apocrypha', 'scholar', 'lit'],
     hello: 'No label needed. You will get a balanced start: the text, the history behind it, and the strongest arguments on several sides.',
@@ -134,7 +147,7 @@ export const TRADS = {
   }
 };
 
-export const TRAD_ORDER = ['ath', 'que', 'spi', 'cat', 'ort', 'prot', 'lut', 'pen', 'oth', 'none'];
+export const TRAD_ORDER = ['ath', 'que', 'spi', 'cat', 'ort', 'prot', 'lut', 'pen', 'oth', 'other', 'none'];
 
 export const GOALS = {
   read: 'Read the text for myself',

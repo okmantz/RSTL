@@ -27,24 +27,8 @@ export async function view({ p1 }) {
   const head = `<div class="between" style="margin-bottom:14px">${iso > start ? `<a class="btn sm ghost" href="#/daily/${prev}">${ic('arrowL')} ${esc(short(prev))}</a>` : '<span style="width:80px"></span>'}<div style="text-align:center" class="small muted">${iso === today ? '<span class="tag gold">Today</span> ' : ''}${esc(fmtDate(iso))}<br><span class="tiny faint">Day ${n + 1} · study ${idx + 1} of ${L}${lap > 0 ? ' · lap ' + (lap + 1) : ''} · <a href="#/daily/journey">journey</a></span></div>${iso < today ? `<a class="btn sm ghost" href="#/daily/${next}">${esc(short(next))} ${ic('arrowR')}</a>` : '<span style="width:80px"></span>'}</div>`;
   const checkin = iso === today ? `<div class="narrow" style="margin-bottom:16px">${checkinCard()}</div>` : '';
   const r = renderUnit(u, 'daily:' + iso, 'daily', head);
-  const html = `<div class="narrow">${checkin}</div>${r.html}<div class="narrow mt2" id="thread"></div>`;
-  const after = async () => {
-    await r.after();
-    if (!u.deep) return;
-    try {
-      const p = B.parseRef(u.ref[0]); if (!p) return;
-      const xr = await B.xrefs(p.b); const v0 = p.v || 1;
-      let list = B.unpack(xr[`${p.c}.${v0}`] || []);
-      for (let v = 1; v < 60 && !list.length; v++) list = B.unpack(xr[`${p.c}.${v}`] || []);
-      list = list.slice(0, 5); if (!list.length) return;
-      const t = S.profile.trans, rows = [];
-      for (const x of list) {
-        const txt = await B.snippet(t, x, 200);
-        rows.push(`<a class="xcard" style="--c:${bookColor(x.b)}" href="#/read/${x.b}/${x.c}?v=${x.v}"><div class="r"><span>${esc(B.label(x.b, x.c, x.v, x.ve))}</span><span class="w">${x.w} votes</span></div><div class="t">${esc(txt)}</div></a>`);
-      }
-      $('#thread').innerHTML = `<div class="kicker">Thread of the day</div><h3>What do these have to do with ${esc(B.label(p.b, p.c, v0))}?</h3><p class="muted small">Readers have linked these passages to today’s text. Pick two that seem unrelated and write down what they are doing in the same conversation.</p>${rows.join('')}`;
-    } catch (e) { }
-  };
+  const html = `<div class="narrow">${checkin}</div>${r.html}`;
+  const after = async () => { await r.after(); };
   return { html, after, title: u.t };
 }
 

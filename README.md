@@ -20,3 +20,14 @@ Study content draws on *Beneath the Absolute* by O.K. Mantz, and on the scholars
 
 ---
 <sub>Hosting it yourself: copy this folder to the root of a GitHub repo and turn on Pages (Settings → Pages → deploy from branch). It is a plain static site; to run it locally use `python3 -m http.server`. Bible texts are public domain (BSB, KJV, ASV); cross-references are from OpenBible.info (CC-BY).</sub>
+
+## v3 additions
+
+- **Original text**: read any chapter in English, original Hebrew/Greek, word-by-word, or parallel; tap a word for its lemma, morphology, meaning and every occurrence (`#/word/H2617`).
+- **Deeper daily studies**: every daily now includes the original-language view, translation-divergence analysis, a cross-reference web, repeated-word analysis, a "pick the verse" exercise, a book dossier facet and sources. About 257 key chapters have hand-written notes.
+- **Journal entries**, **profile photo picker**, **onboarding "Other"**, **cleaner Book Guides**, and a **Share this app** section on the profile page.
+
+### Data and attribution
+
+`data/orig/` (about 31 MB, 95 files) holds the original-language text. The whole folder must be uploaded for the Original and Word-by-word modes to work.
+Original-language data: STEPBible / Tyndale House Cambridge, CC BY 4.0 (https://github.com/STEPBible/STEPBible-Data).

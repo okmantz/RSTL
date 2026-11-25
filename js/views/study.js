@@ -4,7 +4,7 @@ import * as B from '../bible.js';
 import { renderUnit, unitActions } from '../unit.js';
 import { checkAch } from '../ach.js';
 import { esc, $, mod, bookColor } from '../util.js';
-import { md, toast } from '../ui.js';
+import { md, plain, toast } from '../ui.js';
 
 let TR = null;
 export const tracks = async () => TR || (TR = (await import('../../content/tracks.js')).default);
@@ -92,10 +92,29 @@ export async function plansView({ p1 }) {
   return { html };
 }
 /* ---------- book guides ---------- */
+const GROUPS = [['all', 'All'], ['ot', 'Old'], ['nt', 'New'], ['ap', 'Apocrypha']];
+const SECTIONS = [['Torah', 0, 4], ['Historical books', 5, 16], ['Wisdom and poetry', 17, 21], ['Prophets', 22, 38], ['Gospels and Acts', 39, 43], ['Letters of Paul', 44, 56], ['General letters and Revelation', 57, 65], ['Apocrypha / Deuterocanon', 66, 79]];
+const hasHard = g => g && g[4];
 export async function booksView() {
   const BOOKS = (await import('../../content/books.js')).default;
-  const html = `<a class="small" href="#/study">← Study</a><h1 style="margin-top:6px">Book Guides</h1><p class="muted">One paragraph of orientation and one hard question for every book. Open a book in the Reader for the full guide.</p>
-  <div class="grid g2 mt">${B.META.map(m => { const g = BOOKS[m.i]; return `<a class="card" style="border-left:4px solid ${bookColor(m.i)}" href="#/read/${m.i}"><h3 class="mb0">${esc(m.n)}</h3><p class="tiny faint">${esc(g ? g[2] : '')}</p><p class="small muted mb0">${g ? md(g[4]) : ''}</p></a>`; }).join('')}</div>`;
-  return { html };
+  const card = m => { const g = BOOKS[m.i]; const read = Object.keys(S.read).filter(k => k.startsWith(m.i + '.')).length;
+    return `<article class="bg-card" data-n="${esc(m.n.toLowerCase())}" data-g="${m.i < 39 ? 'ot' : m.i < 66 ? 'nt' : 'ap'}" style="--c:${bookColor(m.i)}">
+      <a class="bg-main" href="#/read/${m.i}"><div class="bg-top"><h3>${esc(m.n)}</h3><span class="tag">${esc(g ? g[2] : '')}</span></div>
+      <p class="bg-q"><span class="kicker">The hard question</span>${g ? plain(g[4]) : ''}</p>
+      <div class="bg-foot"><span>${m.v.length} ${m.v.length === 1 ? 'chapter' : 'chapters'}</span>${read ? `<span class="faint">${read} read</span>` : ''}</div></a></article>`; };
+  const sec = ([t, a, z]) => `<section class="bg-sec" data-sec><h2>${esc(t)}</h2><div class="bg-grid">${B.META.slice(a, z + 1).map(card).join('')}</div></section>`;
+  const html = `<div class="bg-page"><a class="small" href="#/study">← Study</a><h1 style="margin-top:6px">Book Guides</h1><p class="muted narrow-p">Every book, with its genre and the hard question it raises. Open a book to read its full guide, with date, authorship and orientation.</p>
+  <div class="bg-tools"><input type="search" id="bg-q" placeholder="Find a book…" aria-label="Find a book"><div class="seg" role="tablist" aria-label="Filter">${GROUPS.map(([id, n], i) => `<button role="tab" class="${i === 0 ? 'on' : ''}" data-act="bgf" data-g="${id}">${n}</button>`).join('')}</div></div>
+  ${SECTIONS.map(sec).join('')}<p class="muted center" id="bg-none" hidden>No book matches.</p></div>`;
+  const after = () => {
+    let g = 'all';
+    const run = () => { const q = $('#bg-q').value.trim().toLowerCase(); let any = false;
+      document.querySelectorAll('.bg-card').forEach(c => { const ok = (g === 'all' || c.dataset.g === g) && (!q || c.dataset.n.includes(q)); c.hidden = !ok; if (ok) any = true; });
+      document.querySelectorAll('[data-sec]').forEach(s => { s.hidden = !s.querySelector('.bg-card:not([hidden])'); });
+      $('#bg-none').hidden = any; };
+    $('#bg-q').addEventListener('input', run);
+    document.querySelectorAll('[data-act=bgf]').forEach(b => b.addEventListener('click', () => { g = b.dataset.g; document.querySelectorAll('[data-act=bgf]').forEach(x => x.classList.toggle('on', x === b)); run(); }));
+  };
+  return { html, after };
 }
 export const actions = {};

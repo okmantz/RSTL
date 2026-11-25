@@ -2,7 +2,7 @@ import { S, save, addXP, markActive } from '../store.js';
 import { ic } from '../icons.js';
 import { checkAch } from '../ach.js';
 import { esc } from '../util.js';
-import { md, toast } from '../ui.js';
+import { md, toast, plain } from '../ui.js';
 import { respondHTML, wireRespond, reactRow } from '../respond.js';
 let LIB = null; const load = async () => LIB || (LIB = await import('../../content/library.js'));
 export async function view({ p1 }) {
@@ -21,7 +21,7 @@ export async function view({ p1 }) {
   }
   const html = `<a class="small" href="#/study">← Study</a><h1 style="margin-top:6px">Library of Voices</h1><p class="muted narrow" style="margin-left:0">The Bible didn’t arrive in a vacuum, and it isn’t the only book people have staked their lives on. Read it in conversation with the texts it quotes, the texts it excluded, the texts that answered it, and the traditions that see the same questions from the other side.</p>
   <div class="tabs" id="vtabs">${[['all', 'All'], ...Object.entries(KINDS)].map(([k, n], i) => `<button class="pill ${i === 0 ? 'on' : ''}" data-act="vfilter" data-k="${k}">${esc(n)}</button>`).join('')}</div>
-  <div class="grid g2" id="vgrid">${V.map(v => `<a class="card vcard" data-k="${v.k}" href="#/study/voice/${v.id}"><div class="between"><span class="tag">${esc(KINDS[v.k] || v.k)}</span>${S.lib[v.id] ? '<span class="tag gold">read</span>' : ''}</div><h3 style="margin-top:8px">${esc(v.n)}</h3><p class="small faint mb0">${esc(v.w)}</p><p class="muted small mt mb0">${md(v.s)}</p></a>`).join('')}</div>
+  <div class="grid g2" id="vgrid">${V.map(v => `<a class="card vcard" data-k="${v.k}" href="#/study/voice/${v.id}"><div class="between"><span class="tag">${esc(KINDS[v.k] || v.k)}</span>${S.lib[v.id] ? '<span class="tag gold">read</span>' : ''}</div><h3 style="margin-top:8px">${esc(v.n)}</h3><p class="small faint mb0">${esc(v.w)}</p><p class="muted small mt mb0">${plain(v.s)}</p></a>`).join('')}</div>
   <div class="sec-h"><h2>The Shelf</h2><span class="tiny faint">further reading, real books</span></div>
   <div class="card"><ul class="src">${SHELF.map(s => `<li>${md(s)}</li>`).join('')}</ul></div>`;
   return { html };

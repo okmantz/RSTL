@@ -8,11 +8,11 @@ let step = 0, D = null;
 const SUB = {
   ath: 'No belief assumed. Texts read as history and literature.', que: 'Doubting, deconstructing, or unsure what you think.', spi: 'Spiritual, not tied to one tradition.',
   cat: 'Includes the deuterocanonical books.', ort: 'Eastern or Oriental; larger canons and the Fathers.', prot: 'Evangelical, Baptist, Reformed, non-denominational.',
-  lut: 'Lutheran, Anglican, Methodist and other mainline churches.', pen: 'Pentecostal, charismatic, Spirit-led churches.', oth: 'Another faith, or a tradition not listed.', none: 'Skip this question. Start with the default path.'
+  lut: 'Lutheran, Anglican, Methodist and other mainline churches.', pen: 'Pentecostal, charismatic, Spirit-led churches.', oth: 'Jewish and Muslim readers, with the Hebrew Bible and the Quran in conversation.', other: 'Hindu, Buddhist, Sikh, Baha’i, humanist, or anything else. Tell us in your own words.', none: 'Skip this question. Start with the default path.'
 };
 function init() {
   const p = S.profile;
-  D = { trad: p.onboarded ? p.trad : '', goals: [...(p.goals || [])], tone: p.tone || 'honest', mins: +p.mins || 15, name: p.name || '', season: '' };
+  D = { trad: p.onboarded ? p.trad : '', tradOther: p.tradOther || '', goals: [...(p.goals || [])], tone: p.tone || 'honest', mins: +p.mins || 15, name: p.name || '', season: '' };
   step = 0;
 }
 const N = 5;
@@ -21,10 +21,11 @@ const opt = (on, act, data, t, s, icon) => `<button class="opt ${on ? 'on' : ''}
 const nav = (canNext = true, last = false) => `<div class="between mt2">${step > 0 ? `<button class="btn ghost" data-act="wizBack">${ic('arrowL')} Back</button>` : '<span></span>'}<button class="btn pri" data-act="${last ? 'wizFinish' : 'wizNext'}" ${canNext ? '' : 'disabled'}>${last ? 'Begin' : 'Continue'} ${ic('arrowR')}</button></div>`;
 
 export async function view({ q }) {
-  if (!D || q.redo) { if (q.redo || !D) init(); }
+  if (!D || q.redo) { init(); if (q.redo) history.replaceState(null, '', '#/welcome'); }
   let h = '';
   if (step === 0) h = `<div class="kicker">Welcome to RSTL</div><h1>Rethinking Spiritual Truth &amp; Literature</h1><p class="muted">A place to read Scripture and the texts around it closely, and to question, challenge and respond as you go. Five short questions set your starting point. None is a test, and you can change every answer later.</p>
-    <h3 style="margin-top:26px">Where are you starting from?</h3><div class="opts">${TRAD_ORDER.map(t => opt(D.trad === t, 'wizTrad', `data-v="${t}"`, TRADS[t].n, SUB[t])).join('')}</div>${nav(!!D.trad)}`;
+    <h3 style="margin-top:26px">Where are you starting from?</h3><div class="opts">${TRAD_ORDER.map(t => opt(D.trad === t, 'wizTrad', `data-v="${t}"`, TRADS[t].n, SUB[t])).join('')}</div>
+    ${D.trad === 'other' ? `<label class="flabel" for="wiz-other">In your own words (optional)</label><input type="text" id="wiz-other" maxlength="80" placeholder="e.g. Buddhist, Hindu, humanist, still working it out" value="${esc(D.tradOther)}">` : ''}${nav(!!D.trad)}`;
   if (step === 1) h = `<h1>What brings you here?</h1><p class="muted">Pick up to three.</p><div class="opts">${Object.entries(GOALS).map(([k, v]) => opt(D.goals.includes(k), 'wizGoal', `data-v="${k}"`, v, '')).join('')}</div>${nav(D.goals.length > 0)}`;
   if (step === 2) h = `<h1>How should the studies treat you?</h1><p class="muted">This sets how much of the hard material is open when you start.</p><div class="opts">${Object.entries(TONES).map(([k, v]) => opt(D.tone === k, 'wizTone', `data-v="${k}"`, v[0], v[1])).join('')}</div>${nav()}`;
   if (step === 3) h = `<h1>How much time do you have most days?</h1><p class="muted">You can always open more. This only decides what starts open.</p><div class="opts">${Object.entries(MINS).map(([k, v]) => opt(D.mins === +k, 'wizMins', `data-v="${k}"`, v[0], v[1])).join('')}</div>${nav()}`;
@@ -43,7 +44,7 @@ export async function view({ q }) {
     <p class="small muted mt">Everything is on this device. Nothing is sent anywhere. You can retake this from your profile.</p>${nav(true, true)}`;
   }
   const html = `<div class="wiz">${prog()}${h}</div>`;
-  const after = () => { const n = $('#wiz-name'); if (n) n.addEventListener('input', () => { D.name = n.value; }); };
+  const after = () => { const n = $('#wiz-name'); if (n) n.addEventListener('input', () => { D.name = n.value; }); const o = $('#wiz-other'); if (o) { o.addEventListener('input', () => { D.tradOther = o.value; }); } };
   return { html, after, title: 'Welcome' };
 }
 const go = n => { step = n; rerender(); scrollTo(0, 0); };
@@ -53,11 +54,11 @@ export const actions = {
   wizTone(el) { D.tone = el.dataset.v; rerender(); },
   wizMins(el) { D.mins = +el.dataset.v; rerender(); },
   wizSeason(el) { D.season = el.dataset.v; rerender(); },
-  wizNext() { go(step + 1); }, wizBack() { go(Math.max(0, step - 1)); },
+  wizNext() { const o = $('#wiz-other'); if (o) D.tradOther = o.value; go(step + 1); }, wizBack() { go(Math.max(0, step - 1)); },
   wizFinish() {
     const p = S.profile, t = TRADS[D.trad] || TRADS.none;
     const seasonChanged = D.season !== p.season || !p.onboarded;
-    Object.assign(p, { onboarded: true, trad: D.trad || 'none', goals: D.goals, tone: D.tone, mins: D.mins, name: D.name.trim(), season: D.season || t.start });
+    Object.assign(p, { onboarded: true, trad: D.trad || 'none', tradOther: D.trad === 'other' ? (D.tradOther || '').trim() : '', goals: D.goals, tone: D.tone, mins: D.mins, name: D.name.trim(), season: D.season || t.start });
     if (seasonChanged || !p.start) p.start = todayISO();
     save(); D = null; location.hash = '#/';
   }

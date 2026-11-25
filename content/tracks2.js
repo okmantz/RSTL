@@ -54,7 +54,7 @@ b: [`The book argues that morality has no standing without the Absolute, and tha
 q: [`Which is wiser, Confucius’s answer or Jesus’s? Does the answer depend on whether you are the wronged or the wrongdoer?`, `If Proverbs borrowed from Amenemope, what does inspiration mean?`],
 s: [`Christian ethics is unique.`, `Shares with others`, `Distinct and superior`],
 p: `Choose someone who has wronged you. Try both responses in imagination. Notice which you resist.`,
-src: [`D. C. Lau, trans., *The Analects* (Penguin, 1979)`, `Stephen Mitchell, trans., *Tao Te Ching*`, `Michael V. Fox, *Proverbs 1–9* (Anchor Bible, 2000)`, `Huston Smith, *The World’s Religions* (1958)`]
+src: [`D. C. Lau, trans., *The Analects* (Penguin, 1979)`, `Stephen Mitchell, trans., *Tao Te Ching*`, `Michael V. Fox, *Proverbs 1–9* (Anchor Bible, 2000)`, `Huston Smith, *The World’s Religions* (1991; first published as *The Religions of Man*, 1958)`]
 }
 ]
 },

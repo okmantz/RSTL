@@ -5,11 +5,12 @@ const defaults = () => ({
   v: 2,
   profile: {
     name: '', mark: 0, theme: 'dark', trans: 'bsb', size: 19, joined: Date.now(),
-    onboarded: false, start: '', trad: 'none', goals: [], tone: 'honest', mins: 15, season: 'gospels', hideAuthor: false
+    onboarded: false, start: '', trad: 'none', goals: [], tone: 'honest', mins: 15, season: 'gospels', hideAuthor: false, rmode: 'eng', avatar: { k: 'mono', p: 0, img: '' }, tradOther: ''
   },
   xp: 0, days: {}, read: {}, notes: {}, hl: {}, bm: {}, units: {}, args: {},
   beliefs: { cur: {}, snaps: [] }, qs: {}, ach: {}, lib: {}, plans: {}, last: null, stats: { xrefs: 0 },
   resp: {},      // per-item responses: { steel:{view,obj,chg,say}, voice:{who,t}, sit:'', ts }
+  journal: [],   // free entries written on the journal page: { id, title, body, ref, ts, up }
   myq: [],       // the reader's own questions: { id, t, ref, src, ts, st:'open'|'partial'|'done', n }
   react: {},     // per-section reactions: key#section -> { v, ttl, ts }
   rep: {},       // replies to one's past self: entryId -> [{ t, ts }]
@@ -22,6 +23,8 @@ function merge(d, o) {
   d.stats = Object.assign({ xrefs: 0 }, o.stats || {});
   ['resp', 'react', 'rep', 'bn'].forEach(k => { if (!d[k] || typeof d[k] !== 'object') d[k] = {}; });
   if (!Array.isArray(d.myq)) d.myq = [];
+  if (!Array.isArray(d.journal)) d.journal = [];
+  if (!d.profile.avatar || typeof d.profile.avatar !== 'object') d.profile.avatar = { k: 'mono', p: 0, img: '' };
   d.v = 2;
   return d;
 }

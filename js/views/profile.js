@@ -6,7 +6,9 @@ import { toast, applyPrefs, md } from '../ui.js';
 import { DOMAINS, PROPS } from '../../content/beliefs.js';
 import { ic } from '../icons.js';
 import { TRADS, TONES, MINS } from '../../content/traditions.js';
+import { avatarHTML, pickerHTML, resizeImage, setAvatar } from '../avatar.js';
 
+const SHARE_URL = 'https://okmantz.github.io/RSTL/';
 export async function view() {
   const li = levelInfo(), s = stats(), st = streak(), best = bestStreak();
   // heatmap: last 15 weeks aligned to Sunday
@@ -18,7 +20,8 @@ export async function view() {
   const answers = Object.entries(S.units).flatMap(([k, u]) => (u.a || []).map((t, i) => t && t.trim().length > 20 ? { k, i, t, w: u.when || 0 } : null).filter(Boolean)).sort((a, b) => b.w - a.w).slice(0, 8);
   const unlocked = ACH.filter(a => S.ach[a.id]).length;
   const html = `<div class="narrow">
-  <div class="card pad-lg"><div class="row" style="gap:16px"><div class="avatar" id="av">${esc((S.profile.name || 'R').trim()[0].toUpperCase())}</div><div style="flex:1;min-width:180px"><input type="text" id="pname" placeholder="Your name" value="${esc(S.profile.name)}" maxlength="30" style="font-family:var(--serif);font-size:1.3rem;background:transparent;border-color:transparent;padding-left:0"><div class="kicker">Level ${li.level} · ${esc(li.title)}</div></div></div>
+  <div class="card pad-lg"><div class="row" style="gap:16px"><button class="av-btn" data-act="avtoggle" aria-label="Change your picture" aria-expanded="${avOpen}" id="av">${avatarHTML('lg')}<span class="av-edit">${ic('pen')}</span></button><div style="flex:1;min-width:180px"><input type="text" id="pname" placeholder="Your name" value="${esc(S.profile.name)}" maxlength="30" style="font-family:var(--serif);font-size:1.3rem;background:transparent;border-color:transparent;padding-left:0"><div class="kicker">Level ${li.level} · ${esc(li.title)}</div></div></div>
+  <div class="card mt" id="av-panel" ${avOpen ? '' : 'hidden'}>${pickerHTML()}</div>
   <div class="bar mt"><i style="width:${li.pct}%"></i></div><p class="tiny faint mb0 mt">${S.xp} XP · ${li.toNext} to level ${li.level + 1}</p>
   <div class="grid g4 mt"><div class="stat"><b>${ic('flame')} ${st}</b><span>current streak (best ${best})</span></div><div class="stat"><b>${s.chapters}</b><span>chapters read / 1189</span></div><div class="stat"><b>${s.dailies}</b><span>daily studies</span></div><div class="stat"><b>${s.lessons}</b><span>track lessons</span></div><div class="stat"><b>${s.notes}</b><span>verse notes</span></div><div class="stat"><b>${s.xrefs}</b><span>connections followed</span></div><div class="stat"><b>${s.args}</b><span>arguments tested</span></div><div class="stat"><b>${s.qs}</b><span>questions answered</span></div></div>
   <div class="sec-h"><h2>Activity</h2><span class="tiny faint">last 15 weeks</span></div><div class="card"><div class="heat" style="grid-template-columns:repeat(15,1fr)">${cells.join('')}</div></div>
@@ -29,7 +32,7 @@ export async function view() {
   <div class="sec-h"><h2>Recent writing</h2><a href="#/journal">Open journal →</a></div>
   ${answers.length || notes.length ? `${answers.map(a => `<div class="note-i"><b>${esc(a.k.startsWith('daily:') ? 'Daily · ' + a.k.slice(6) : 'Lesson')}</b><p>${esc(a.t)}</p></div>`).join('')}${notes.map(([k, n]) => { const [b, c, v] = k.split('.'); return `<div class="note-i"><b><a href="#/read/${b}/${c}?v=${v}">${esc(B.label(+b, +c, +v))}</a></b><p>${esc(n.t)}</p></div>`; }).join('')}` : '<p class="muted">Your verse notes and written answers will collect here.</p>'}
   <div class="sec-h"><h2>Settings</h2></div>
-  <div class="card"><div class="kicker">Starting point</div><p class="small muted mt">${esc((TRADS[S.profile.trad] || TRADS.none).n)}. <a href="#/welcome?redo=1">Retake the questionnaire</a> to change it. Your progress stays.</p>
+  <div class="card"><div class="kicker">Starting point</div><p class="small muted mt">${esc(S.profile.trad === 'other' && S.profile.tradOther ? 'Other: ' + S.profile.tradOther : (TRADS[S.profile.trad] || TRADS.none).n)}. <a href="#/welcome?redo=1">Retake the questionnaire</a> to change it. Your progress stays.</p>
   <div class="kicker mt">How hard the studies push</div><div class="row mt" style="margin-bottom:14px">${Object.entries(TONES).map(([k, v]) => `<button class="pill ${S.profile.tone === k ? 'on' : ''}" data-act="setTone" data-v="${k}">${v[0]}</button>`).join('')}</div>
   <div class="kicker">Time per day</div><div class="row mt" style="margin-bottom:14px">${Object.entries(MINS).map(([k, v]) => `<button class="pill ${+S.profile.mins === +k ? 'on' : ''}" data-act="setMins" data-v="${k}">${v[0]}</button>`).join('')}</div>
   <div class="kicker">Author’s sections</div><div class="row mt" style="margin-bottom:14px"><button class="pill ${S.profile.hideAuthor ? '' : 'on'}" data-act="toggleAuthor">${S.profile.hideAuthor ? 'Hidden' : 'Shown'}: sections from <em>Beneath the Absolute</em></button></div>
@@ -38,14 +41,25 @@ export async function view() {
   <div class="kicker">Your data</div><p class="small muted">Everything lives in this browser only — nothing is uploaded. Export a backup to move devices or keep a copy.</p>
   <div class="row"><button class="btn sm" data-act="export">Export backup</button><label class="btn sm" style="cursor:pointer">Import backup<input type="file" accept="application/json" id="imp" hidden></label><button class="btn sm ghost" data-act="reset" style="color:var(--bad)">Erase everything</button></div></div>
   <div class="sec-h"><h2>About</h2></div>
-  <div class="card"><p class="small muted">Texts: Berean Standard Bible, KJV with Apocrypha, ASV (public domain). Cross-references: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC-BY), packaged via scrollmapper/bible_databases. RSTL’s cross-reference web, daily path and responses run entirely in your browser. Study content draws on <em>Beneath the Absolute</em> by O.K. Mantz and on the scholarship named in each study’s sources. Positions presented are for examination, not endorsement.</p><p class="small mb0"><a href="https://docs.google.com/document/d/1KGguzjj5Cqf5-IV4NsbXGrDJe_r9gxM5ax1mAosU9ro/edit?usp=sharing" target="_blank" rel="noopener">Read Beneath the Absolute ${ic('external')}</a></p></div></div>`;
+  <div class="card"><p class="small muted">Texts: Berean Standard Bible, KJV with Apocrypha, ASV (public domain). Cross-references: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC-BY), packaged via scrollmapper/bible_databases. Original-language text and lexicons: <a href="https://www.STEPBible.org" target="_blank" rel="noopener">STEPBible</a> data by Tyndale House, Cambridge (CC BY 4.0), based on the Leningrad Codex and the Nestle-Aland and Textus Receptus Greek texts. RSTL’s cross-reference web, daily path and responses run entirely in your browser. Study content draws on <em>Beneath the Absolute</em> by O.K. Mantz and on the scholarship named in each study’s sources. Positions presented are for examination, not endorsement.</p><p class="small mb0"><a href="https://docs.google.com/document/d/1KGguzjj5Cqf5-IV4NsbXGrDJe_r9gxM5ax1mAosU9ro/edit?usp=sharing" target="_blank" rel="noopener">Read Beneath the Absolute ${ic('external')}</a></p></div>
+  <div class="sec-h"><h2>Share this app</h2></div>
+  <div class="card share-card"><div class="share-in"><img class="share-qr" src="icons/qr.svg" alt="QR code linking to ${SHARE_URL}" width="132" height="132"><div class="share-t"><h3>Know someone who would argue with the Bible well?</h3><p class="small muted">Send them RSTL. It is free, runs in the browser, and keeps everything on their own device.</p><div class="share-link"><input type="text" readonly id="share-url" value="${SHARE_URL}" aria-label="App link" onfocus="this.select()"><button class="btn sm" data-act="copyLink">Copy link</button></div><div class="row mt"><button class="btn pri sm" data-act="shareApp">${ic('external')} Share…</button></div></div></div></div></div>`;
   const after = () => {
+    const f = $('#av-file'); if (f) f.addEventListener('change', async e => { const file = e.target.files[0]; if (!file) return; try { setAvatar({ img: await resizeImage(file) }); toast('Photo updated'); window.dispatchEvent(new Event('app:rerender')); } catch (er) { toast('That file isn’t a usable image'); } });
     $('#pname').addEventListener('input', debounce(e => { S.profile.name = e.target.value.trim(); save(); }, 300));
     $('#imp').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; try { replaceAll(JSON.parse(await f.text())); applyPrefs(S); toast('Backup restored'); window.dispatchEvent(new Event('app:rerender')); } catch (er) { toast('That file isn’t a valid backup'); } });
   };
   return { html, after };
 }
+let avOpen = false;
+const avRefresh = () => { window.dispatchEvent(new Event('app:avatar')); window.dispatchEvent(new Event('app:rerender')); };
 export const actions = {
+  avtoggle(el) { const pn = $('#av-panel'); if (!pn) return; pn.hidden = !pn.hidden; avOpen = !pn.hidden; el.setAttribute('aria-expanded', String(!pn.hidden)); },
+  avk(el) { setAvatar({ k: el.dataset.k, img: '' }); avOpen = true; avRefresh(); },
+  avp(el) { setAvatar({ p: +el.dataset.p, img: '' }); avOpen = true; avRefresh(); },
+  avclear() { setAvatar({ img: '' }); avRefresh(); },
+  copyLink() { const u = SHARE_URL; (navigator.clipboard?.writeText(u) || Promise.reject()).then(() => toast('Link copied'), () => { const i = $('#share-url'); if (i) { i.select(); try { document.execCommand('copy'); toast('Link copied'); } catch (e) { toast('Press Ctrl+C to copy'); } } }); },
+  async shareApp() { const d = { title: 'RSTL: Rethinking Spiritual Truth & Literature', text: 'A Bible study app for people who want to read closely and ask hard questions.', url: SHARE_URL }; if (navigator.share) { try { await navigator.share(d); } catch (e) { } } else actions.copyLink(); },
   setTone(el) { S.profile.tone = el.dataset.v; save(); window.dispatchEvent(new Event('app:rerender')); },
   setMins(el) { S.profile.mins = +el.dataset.v; save(); window.dispatchEvent(new Event('app:rerender')); },
   toggleAuthor() { S.profile.hideAuthor = !S.profile.hideAuthor; save(); window.dispatchEvent(new Event('app:rerender')); },

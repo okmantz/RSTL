@@ -10,6 +10,7 @@ import HARD from '../../content/hardnotes.js';
 import BOOKS from '../../content/books.js';
 import { PROV } from '../../content/banks.js';
 import { respondHTML, wireRespond } from '../respond.js';
+import * as O from '../orig.js';
 
 let HN = null;
 const hardMap = () => {
@@ -17,7 +18,8 @@ const hardMap = () => {
   HARD.forEach(([ref, title, text]) => { const p = B.parseRef(ref); if (p) (HN[`${p.b}.${p.c}.${p.v || 1}`] ||= []).push({ title, text, ref }); });
   return HN;
 };
-let cur = null; // {b,c,verses,xr,trans,sel}
+let cur = null; // {b,c,verses,xr,trans,sel,ws,lex,mode}
+const MODES = [['eng', 'English'], ['orig', 'Original'], ['inter', 'Word by word'], ['par', 'Parallel']];
 const SEC = ['Torah', 'History', 'Wisdom & Poetry', 'Prophets'];
 
 /* ---------- library ---------- */
@@ -54,16 +56,21 @@ export async function view({ p1, p2, q }) {
   if (!m) return { html: '<p>Unknown book.</p>' };
   if (c < 1 || c > m.v.length || isNaN(c)) { location.hash = `#/read/${b}/1`; return { html: '' }; }
   const pref = S.profile.trans, trans = B.transFor(b, pref);
-  const [verses, xr] = await Promise.all([B.chapter(trans, b, c), B.xrefs(b)]);
-  cur = { b, c, verses, xr, trans, sel: null, started: Date.now() };
+  const wantM = q && MODES.some(x => x[0] === q.m) ? q.m : (MODES.some(x => x[0] === S.profile.rmode) ? S.profile.rmode : 'eng');
+  const canO = O.hasOrig(b);
+  const [verses, xr, ws, lex] = await Promise.all([B.chapter(trans, b, c), B.xrefs(b), canO ? O.chapterOrig(b, c).catch(() => null) : null, canO ? O.lexicon(b).catch(() => null) : null]);
+  const mode = canO && ws ? wantM : 'eng';
+  cur = { b, c, verses, xr, trans, sel: null, started: Date.now(), ws, lex, mode };
   S.last = { b, c }; save();
   const hm = hardMap();
-  const vHTML = verses.map((t, i) => {
-    const v = i + 1, k = key(b, c, v), n = (xr[`${c}.${v}`] || []).length / 5, hn = hm[`${b}.${c}.${v}`];
-    const hl = S.hl[k] ? ' hl-' + S.hl[k] : '';
+  const metaFor = v => {
+    const k = key(b, c, v), n = (xr[`${c}.${v}`] || []).length / 5, hn = hm[`${b}.${c}.${v}`];
     const note = S.notes[k]?.t, bm = S.bm[k];
-    return `<p class="v${hl}" data-v="${v}" data-act="selVerse" tabindex="0"><sup>${v}</sup>${esc(t)}<span class="badge">${n ? `<b title="${n} connections">${n}</b>` : ''}${hn ? `<b class="flag" title="Challenge note">${ic('flag')}</b>` : ''}${note ? `<b title="You wrote a note">${ic('pen')}</b>` : ''}${bm ? `<b title="Bookmarked">${ic('bookmark')}</b>` : ''}</span></p>`;
-  }).join('');
+    return { cls: S.hl[k] ? ' hl-' + S.hl[k] : '', badge: `<span class="badge">${n ? `<b title="${n} connections">${n}</b>` : ''}${hn ? `<b class="flag" title="Challenge note">${ic('flag')}</b>` : ''}${note ? `<b title="You wrote a note">${ic('pen')}</b>` : ''}${bm ? `<b title="Bookmarked">${ic('bookmark')}</b>` : ''}</span>` };
+  };
+  const vHTML = mode !== 'eng'
+    ? O.chapterHTML(b, ws, mode, verses, metaFor, 1, 'ow', c)
+    : verses.map((t, i) => { const v = i + 1, m = metaFor(v); return `<p class="v${m.cls}" data-v="${v}" data-act="selVerse" tabindex="0"><sup>${v}</sup>${esc(t)}${m.badge}</p>`; }).join('');
   const prev = c > 1 ? `#/read/${b}/${c - 1}` : b > 0 ? `#/read/${b - 1}/${B.META[b - 1].v.length}` : null;
   const next = c < m.v.length ? `#/read/${b}/${c + 1}` : b < 79 ? `#/read/${b + 1}/1` : null;
   const isRead = !!S.read[`${b}.${c}`];
@@ -72,13 +79,15 @@ export async function view({ p1, p2, q }) {
     <a class="btn sm ghost" href="#/read/${b}">${esc(m.n)} ${ic('chevron')}</a>
     <select id="chsel" aria-label="Chapter" style="width:auto">${m.v.map((_, i) => `<option value="${i + 1}" ${i + 1 === c ? 'selected' : ''}>Chapter ${i + 1}</option>`).join('')}</select>
     <span class="sp"></span>
+    ${canO && ws ? `<div class="seg" role="tablist" aria-label="Text view">${MODES.map(([id, n]) => `<button role="tab" class="${mode === id ? 'on' : ''}" data-act="rmode" data-m="${id}">${id === 'orig' ? O.langOf(b) : n}</button>`).join('')}</div>` : ''}
     ${Object.values(B.TRANS).map(t => `<button class="pill ${t.id === trans ? 'on' : ''}" data-act="trans" data-t="${t.id}" title="${esc(t.name)}">${t.short}</button>`).join('')}
     <button class="icon-btn" data-act="fs" data-d="-1" aria-label="Smaller text">A−</button><button class="icon-btn" data-act="fs" data-d="1" aria-label="Larger text">A+</button>
   </div>
   <h1 class="reader-title">${esc(m.n)} ${m.v.length > 1 ? c : ''}</h1>
-  <p class="small faint">${esc(B.TRANS[trans].name)}${trans !== pref ? ' — the Apocrypha is only available in the KJV' : ''} · tap any verse for its connections</p>
+  <p class="small faint">${esc(B.TRANS[trans].name)}${trans !== pref ? ' — the Apocrypha is only available in the KJV' : ''} · tap any verse for its connections${mode !== 'eng' ? ` · tap a ${O.langOf(b)} word for its meaning` : ''}</p>
+  ${mode !== 'eng' ? `<p class="tiny faint orig-credit">${O.isNT(b) ? 'Greek: STEPBible TAGNT (Tyndale House), the modern critical text with Textus Receptus variants marked' : 'Hebrew: STEPBible TAHOT (Tyndale House), the Leningrad Codex'} · CC BY 4.0. Verse numbering follows the English text.${mode === 'inter' ? ' Faint words have no English counterpart; italic words are supplied in English.' : ''}</p>` : ''}
   ${b < 66 ? `<div class="arcwrap"><canvas id="arcs" aria-label="Rainbow cross-reference arcs for this chapter"></canvas><div class="cap"><span id="arc-cap">Every arc is a cross-reference from this chapter. Tap one to jump.</span><span>Genesis ⟶ Revelation</span></div></div>` : `<div class="callout mt">Cross-reference data covers the 66 canonical books. Apocrypha chapters can still be read, highlighted and annotated.</div>`}
-  <div class="scripture mt" id="verses">${vHTML}</div>
+  <div class="scripture mt${mode !== 'eng' ? ' orig-on orig-' + mode : ''}" id="verses">${vHTML}</div>
   <div class="between mt2"><div class="row">${prev ? `<a class="btn" href="${prev}">← Previous</a>` : ''}</div><button class="btn ${isRead ? '' : 'pri'}" id="mark" data-act="markRead">${isRead ? ic('check') + ' Read' : 'Mark chapter read'}</button><div class="row">${next ? `<a class="btn" href="${next}">Next →</a>` : ''}</div></div>
   <div id="sentinel" style="height:1px"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Verse tools"><div class="sheet-grip"></div><div class="sheet-h"><h3 id="sh-title">Verse</h3><button class="icon-btn" data-act="closeSheet" aria-label="Close">${ic('x')}</button></div><div class="sheet-tabs" id="sh-tabs"></div><div class="sheet-b" id="sh-body"></div></div>`;
@@ -117,7 +126,7 @@ function markRead(auto) {
 }
 /* ---------- verse sheet ---------- */
 function selectVerse(v) {
-  if (!cur) return; cur.sel = v;
+  if (!cur) return; if (cur.sel !== v) cur.word = null; cur.sel = v;
   $$('#verses .v').forEach(p => p.classList.toggle('sel', +p.dataset.v === v));
   history.replaceState(null, '', `#/read/${cur.b}/${cur.c}?v=${v}`);
   drawChapterArcs(v); openSheet('conn');
@@ -127,11 +136,13 @@ function openSheet(t) {
   tab = t || tab; const sh = $('#sheet'); sh.classList.add('open');
   const { b, c, sel } = cur; const hm = hardMap()[`${b}.${c}.${sel}`];
   $('#sh-title').textContent = B.label(b, c, sel);
-  $('#sh-tabs').innerHTML = [['conn', 'Connections'], ['note', 'Note & mark'], ['resp', 'Respond'], ...(hm ? [['hard', 'Challenge']] : []), ['cmp', 'Compare']].map(([id, n]) => `<button class="pill ${tab === id ? 'on' : ''}" data-act="sheetTab" data-t="${id}">${n}</button>`).join('');
+  $('#sh-tabs').innerHTML = [['conn', 'Connections'], ...(cur.ws ? [['orig', O.langOf(b)]] : []), ...(cur.word ? [['word', 'Word']] : []), ['note', 'Note & mark'], ['resp', 'Respond'], ...(hm ? [['hard', 'Challenge']] : []), ['cmp', 'Compare']].map(([id, n]) => `<button class="pill ${tab === id ? 'on' : ''}" data-act="sheetTab" data-t="${id}">${n}</button>`).join('');
   const body = $('#sh-body');
   if (tab === 'conn') renderConns(body);
   else if (tab === 'note') renderNote(body);
   else if (tab === 'resp') renderResp(body);
+  else if (tab === 'orig') renderOrig(body);
+  else if (tab === 'word') renderWord(body);
   else if (tab === 'hard') body.innerHTML = (hm || []).map(h => `<div class="hardnote"><b>${esc(h.title)}</b>${md(h.text)}</div>`).join('');
   else renderCompare(body);
 }
@@ -158,20 +169,48 @@ function renderResp(body) {
   body.innerHTML = `<p class="kicker">A provocation</p><p class="vprompt" style="font-size:1.05rem;color:var(--text)">${esc(prov)}</p><p class="small muted" style="font-family:var(--serif)">${esc(verses[sel - 1])}</p>${respondHTML(k, { title: lab, ref: lab, questions: [prov], label: lab })}`;
   wireRespond(body);
 }
+function renderOrig(body) {
+  const { b, c, sel, ws } = cur, w = ws && ws[sel - 1];
+  if (!w || !w.length) { body.innerHTML = '<p class="muted">No original-language data for this verse.</p>'; return; }
+  const flags = [...new Set(w.map(x => x[5]).filter(f => f && f !== 't'))];
+  body.innerHTML = `<p class="small muted">${O.langOf(b)}, read ${O.isNT(b) ? 'left to right' : 'right to left'}. Tap a word for its dictionary entry, grammar and every other place it occurs.</p>${O.verseTable(b, w)}${flags.length ? `<div class="callout mt small">${flags.map(f => `<p class="mb0"><b>${{ q: 'Qere', k: 'KJV text only', n: 'Not in KJV text', v: 'KJV differs', o: 'Other editions' }[f] || f}.</b> ${esc(O.FLAG_NOTE[f] || '')}</p>`).join('')}</div>` : ''}`;
+}
+function renderWord(body) {
+  const { b, word, lex } = cur;
+  body.innerHTML = word ? O.wordCard(b, word, lex) : '<p class="muted">Tap a word in the original text.</p>';
+}
+const ARCHAIC = { thee: 'you', thou: 'you', thy: 'your', thine: 'your', ye: 'you', hath: 'has', doth: 'does', unto: 'to', saith: 'says', shalt: 'shall', wilt: 'will', art: 'are', spake: 'spoke', whom: 'who', lo: 'behold' };
+const norm = t => t.toLowerCase().replace(/[^a-z\s'-]/g, ' ').split(/\s+/).filter(Boolean).map(w => ARCHAIC[w] || w);
 async function renderCompare(body) {
   body.innerHTML = loading('Comparing translations…');
-  const { b, c, sel } = cur; const out = [];
-  for (const t of Object.values(B.TRANS)) { if (B.META[b].t === 'AP' && t.id !== 'kjv') continue; const ch = await B.chapter(t.id, b, c); out.push(`<div class="voice"><b>${t.short}</b><span>${esc(ch[sel - 1] || '—')}</span></div>`); }
-  if (cur.sel === sel) body.innerHTML = out.join('') + `<p class="tiny faint">Differences between translations are often where interpretive decisions hide. Look for the verbs.</p>`;
+  const { b, c, sel } = cur; const out = [], sets = [];
+  for (const t of Object.values(B.TRANS)) { if (B.META[b].t === 'AP' && t.id !== 'kjv') continue; const ch = await B.chapter(t.id, b, c); const txt = ch[sel - 1] || ''; out.push({ t, txt }); sets.push(new Set(norm(txt))); }
+  const html = out.map(({ t, txt }, i) => {
+    const others = new Set(sets.filter((_, j) => j !== i).flatMap(x => [...x]));
+    const marked = sets.length > 1 ? esc(txt).replace(/[A-Za-z][A-Za-z’'-]*/g, w => { const n = norm(w)[0]; return n && n.length > 3 && !others.has(n) ? `<mark>${w}</mark>` : w; }) : esc(txt);
+    return `<div class="voice"><b>${t.short}</b><span>${marked || '—'}</span></div>`;
+  }).join('');
+  if (cur.sel !== sel) return;
+  body.innerHTML = html + `<p class="tiny faint">Highlighted words appear in only one of the translations (old-fashioned forms such as “thou” are treated as “you”). Where they differ, the translators made an interpretive choice.${cur.ws ? ` Check the <a href="#/read/${b}/${c}?v=${sel}&m=inter">${O.langOf(b)}</a>.` : ''}</p>`;
 }
 function refreshBadge(v) {
   const p = $(`.v[data-v="${v}"]`); if (!p) return; const k = key(cur.b, cur.c, v);
   const n = (cur.xr[`${cur.c}.${v}`] || []).length / 5, hn = hardMap()[`${cur.b}.${cur.c}.${v}`];
   p.querySelector('.badge').innerHTML = `${n ? `<b>${n}</b>` : ''}${hn ? `<b class="flag">${ic('flag')}</b>` : ''}${S.notes[k] ? `<b>${ic('pen')}</b>` : ''}${S.bm[k] ? `<b>${ic('bookmark')}</b>` : ''}`;
-  p.className = 'v sel' + (S.hl[k] ? ' hl-' + S.hl[k] : '');
+  p.className = p.className.replace(/\bhl-\w+/g, '').replace(/\s+/g, ' ').trim() + (S.hl[k] ? ' hl-' + S.hl[k] : '');
 }
 export const actions = {
   selVerse(el, e) { if (e.target.closest('a')) return; selectVerse(+el.dataset.v); },
+  rmode(el) { S.profile.rmode = el.dataset.m; save(); const v = cur?.sel; history.replaceState(null, '', `#/read/${cur.b}/${cur.c}${v ? '?v=' + v : ''}`); window.dispatchEvent(new Event('app:rerender')); },
+  ow(el, e) {
+    e && e.stopPropagation && e.stopPropagation();
+    if (!cur?.ws) return;
+    const v = el.dataset.v === '*' ? cur.sel : +el.dataset.v, i = +el.dataset.i;
+    const w = cur.ws[v - 1]?.[i]; if (!w) return;
+    if (cur.sel !== v) { cur.sel = v; $$('#verses .v').forEach(p => p.classList.toggle('sel', +p.dataset.v === v)); drawChapterArcs(v); }
+    cur.word = w; $$('.ow.on,.iw.on').forEach(x => x.classList.remove('on')); if (el.closest('#verses')) el.classList.add('on');
+    openSheet('word');
+  },
   closeSheet() { $('#sheet')?.classList.remove('open'); if (cur) { cur.sel = null; $$('#verses .v').forEach(p => p.classList.remove('sel')); drawChapterArcs(null); history.replaceState(null, '', `#/read/${cur.b}/${cur.c}`); } },
   sheetTab(el) { openSheet(el.dataset.t); },
   sort(el) { sort = el.dataset.s; openSheet('conn'); },

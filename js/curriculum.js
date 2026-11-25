@@ -10,6 +10,8 @@ import { GENRE_Q, LENS_Q, HARD_Q, PRACTICE, STANCE, GENRE_TIP } from '../content
 import HARD from '../content/hardnotes.js';
 import BOOKS from '../content/books.js';
 import DEEP from '../content/daily.js';
+import INS from '../content/insight.js';
+import DOS from '../content/dossier.js';
 
 const CAP = 45, CAP_PS = 30, MAX_CH = 4;
 let CACHE = null, CK = '';
@@ -44,7 +46,7 @@ export function sequence() {
   const ck = S.profile.season;
   if (CACHE && CK === ck) return CACHE;
   const spine = [];
-  orderedSeasons().forEach(se => se.books.forEach(([a, z]) => { for (let b = a; b <= z; b++) groups(b).forEach(g => spine.push({ kind: 'gen', sid: se.id, ...g })); }));
+  orderedSeasons().forEach(se => se.books.forEach(([a, z]) => { for (let b = a; b <= z; b++) groups(b).forEach((g, gi) => spine.push({ kind: 'gen', sid: se.id, gi, ...g })); }));
   // slot each handcrafted study immediately after the reading that covers its first passage
   const after = new Map();
   DEEP.forEach((u, di) => {
@@ -93,7 +95,14 @@ function pick(arr, n) { return arr[((n % arr.length) + arr.length) % arr.length]
 function buildGen(e, idx) {
   const m = B.META[e.b], genre = m.s, lens = idx % LENSES.length;
   const trad = TRADS[S.profile.trad] || TRADS.none, tone = S.profile.tone, mins = +S.profile.mins || 15;
-  const q = [pick(GENRE_Q[genre], idx + e.b)];
+  const ins = (INS[e.b] || []).filter(r => r[0] >= e.c1 && r[0] <= e.c2).map(r => ({ c: r[0], h: r[1], t: r[2], q: r[3] }));
+  const dos = DOS[e.b] || null;
+  const FACETS = [['ctx', 'Historical setting'], ['out', 'How the book is built'], ['ext', 'Outside sources and parallels'], ['dbt', 'A scholarly debate']];
+  const fk = FACETS[(e.gi || 0) % FACETS.length];
+  const facet = dos && dos[fk[0]] ? { title: fk[1], text: dos[fk[0]] } : null;
+  const q = [];
+  ins.forEach(x => { if (x.q) q.push(x.q); });
+  q.push(pick(GENRE_Q[genre], idx + e.b));
   if (mins >= 15) q.push(pick(LENS_Q[lens], idx));
   q.push(pick(trad.tq, idx));
   if (tone === 'hard') q.push(pick(HARD_Q, idx + 3));
@@ -105,7 +114,7 @@ function buildGen(e, idx) {
     t: rangeLabel(e.b, e.c1, e.c2),
     k: `${seasonName(e.sid)} · Lens: ${LENSES[lens][0]}`,
     tag: `${e.verses} verses · about ${mins_read} min to read. ${LENSES[lens][1]}`,
-    tip: GENRE_TIP[genre], guide: BOOKS[e.b], first: e.c1 === 1, hard,
+    tip: GENRE_TIP[genre], guide: BOOKS[e.b], first: e.c1 === 1, hard, ins, facet, src: dos?.src || [],
     q, s: [pick(STANCE, idx), 'Disagree', 'Agree'], p: pick(PRACTICE, idx * 7 + e.b)
   };
 }

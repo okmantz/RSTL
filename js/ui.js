@@ -16,6 +16,10 @@ export function md(s) {
   h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]+?)\*/g, '$1<em>$2</em>');
   return h;
 }
+/** inline text with emphasis but no links; safe inside an <a> card */
+export function plain(s) {
+  return esc(String(s ?? '')).replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '$1').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]+?)\*/g, '$1<em>$2</em>');
+}
 export const paras = arr => (Array.isArray(arr) ? arr : [arr]).filter(Boolean).map(p => `<p>${md(p)}</p>`).join('');
 export const loading = (msg = 'Loading…') => `<div class="loading"><div class="spin"></div>${esc(msg)}</div>`;
 export const icon = n => ic({ read: 'book', daily: 'sun', study: 'cap' }[n] || n);
