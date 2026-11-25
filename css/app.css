@@ -475,3 +475,16 @@ mark{background:color-mix(in srgb,var(--accent) 28%,transparent);color:inherit;b
 .wrow .g i.un{font-style:normal;color:var(--faint)}
 .iv .ivn .badge,.pv .badge{display:flex;gap:4px}
 .seg a,.seg button{white-space:nowrap}
+
+/* v4: "Go deeper" layer and exercises on guided readings */
+.blk.deepen{--bc:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.blk.deepen>summary{color:var(--accent)}
+.blk.deepen .in h4{color:var(--text);font-family:var(--serif);font-size:1.18rem;line-height:1.35;margin:0 0 10px}
+.xr{list-style:none;padding:0;margin:6px 0 0}
+.xr li{padding:9px 0;border-top:1px solid var(--line);font-family:var(--serif);font-size:1rem;line-height:1.55}
+.xr li:first-child{border-top:0}
+.xr li>span{color:var(--muted)}
+.blk.exercise{--bc:var(--warn)}
+.dd-opts{margin:10px 0}
+.dd-opts .opt span span{display:block;font-weight:400;font-family:var(--serif);font-size:1rem;color:var(--text);line-height:1.5}
+.blk.exercise .in input[type=range]{width:100%;margin:14px 0 4px}
