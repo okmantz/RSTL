@@ -37,3 +37,6 @@ Original-language data: STEPBible / Tyndale House Cambridge, CC BY 4.0 (https://
 - Cross-chapter references (e.g. "Isaiah 44:28–45:1") now link correctly.
 - Fact fixes: 2 Maccabees 12:38-45 range, 2 Esdras 7:48 verse numbering note.
 - Backup import now rejects files that aren't RSTL backups. Service worker cache bumped to `rstl-v4`.
+
+## v5 additions
+- **Reader controls never clip.** The reader toolbar is now three tidy rows (book + chapter, translation + text size, text view), and the text-view switch, verse-panel tabs and all other segmented controls wrap onto a second line instead of hiding options off-screen on narrow phones. Service worker cache bumped to `rstl-v5`.
