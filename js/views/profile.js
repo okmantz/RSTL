@@ -47,7 +47,7 @@ export async function view() {
   const after = () => {
     const f = $('#av-file'); if (f) f.addEventListener('change', async e => { const file = e.target.files[0]; if (!file) return; try { setAvatar({ img: await resizeImage(file) }); toast('Photo updated'); window.dispatchEvent(new Event('app:rerender')); } catch (er) { toast('That file isn’t a usable image'); } });
     $('#pname').addEventListener('input', debounce(e => { S.profile.name = e.target.value.trim(); save(); }, 300));
-    $('#imp').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; try { replaceAll(JSON.parse(await f.text())); applyPrefs(S); toast('Backup restored'); window.dispatchEvent(new Event('app:rerender')); } catch (er) { toast('That file isn’t a valid backup'); } });
+    $('#imp').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); if (!o || typeof o !== 'object' || Array.isArray(o) || !(o.units || o.profile)) throw new Error('bad'); replaceAll(o); applyPrefs(S); toast('Backup restored'); window.dispatchEvent(new Event('app:rerender')); } catch (er) { toast('That file isn’t a valid backup'); } });
   };
   return { html, after };
 }

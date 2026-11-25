@@ -45,6 +45,7 @@ const digRows = () => {
 const pastRows = () => {
   const out = [];
   Object.entries(S.units).forEach(([k, u]) => (u.a || []).forEach((a, i) => { if (a && a.trim().length > 30) out.push({ id: k + ':' + i, k, a, ts: u.when || 0 }); }));
+  Object.entries(S.units).forEach(([k, u]) => { if (u.dd) ['p1', 'p2', 't'].forEach(f => { const a = u.dd[f]; if (a && a.trim().length > 30) out.push({ id: k + ':dd' + f, k, a, ts: u.when || 0 }); }); });
   out.sort((x, y) => (y.ts || 0) - (x.ts || 0));
   return out.slice(0, 40).map(o => { const reps = S.rep[o.id] || []; const l = linkFor(o.k); return `<div class="jitem"><div class="jh"><span>${l ? `<a href="${l}">${esc(titleFor(o.k))}</a>` : esc(o.k)}</span><span>${o.k.startsWith('daily:') ? esc(o.k.slice(6, 16)) : ''}</span></div><div class="jt">${esc(o.a)}</div>${reps.map(r => `<div class="jt mt" style="border-left:2px solid var(--accent);padding-left:10px"><span class="tiny faint">${when(r.ts)}, replying</span><br>${esc(r.t)}</div>`).join('')}<div class="row mt"><input type="text" id="rep-${esc(o.id)}" placeholder="Reply to your earlier self…" style="flex:1;min-width:180px"><button class="btn sm" data-act="jrep" data-id="${esc(o.id)}">Add reply</button></div></div>`; }).join('') || `<p class="muted mt">Once you have written answers in studies, they appear here and you can reply to what you wrote. Changing your mind is the point.</p>`;
 };
