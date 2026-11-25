@@ -1,23 +1,22 @@
-# Beneath the Deep — a rigorous Bible study
+# RSTL
+### Rethinking Spiritual Truth & Literature
 
-A static, no-build web app: a Bible reader with rainbow cross-reference arcs (KJV + Apocrypha, BSB, ASV), a Daily study that rotates through 24 handcrafted deep dives plus a computed "Thread of the Day", 9 study tracks (30 lessons, including an 8-session seminar through *Beneath the Absolute*), Big Questions, an Argument Lab, a Belief Map, a Library of Voices, reading plans, daily check-ins, XP, achievements and a profile. Installable as a PWA. All progress stays in the browser (localStorage).
+A free reading and study app for anyone curious about the Bible and the texts around it. Believer, atheist, questioning, Catholic, Orthodox, Protestant, Lutheran, Pentecostal, something else: you are all welcome, and nothing here asks you to believe anything.
 
-## Deploy on GitHub Pages (repo root)
-1. Unzip and copy **everything** (including the hidden `.nojekyll`) into the root of your repo.
-2. Commit and push.
-3. Repo → Settings → Pages → Source: *Deploy from a branch* → Branch `main`, folder `/ (root)`.
-4. Open `https://<user>.github.io/<repo>/`.
+**What you get**
 
-All paths are relative, so it works under any repo subpath.
+- **A different study every day for about three years.** Over 1,100 days walk through the whole Bible and the Apocrypha. Sixty are handwritten deep dives with cross-references; the rest are guided readings with the text, word patterns, threads to other passages, and the hard questions.
+- **A reader that connects everything.** Three translations plus the KJV Apocrypha, with every verse linked to the rest of Scripture by cross-reference.
+- **Room to push back.** Steelman an idea, answer in another voice (a sceptic, a believer, a historian, a child), write a prayer or reflection, ask your own questions, reply to your past self, and mark what to dig into later.
+- **Study tracks, an argument lab, big questions and a belief map** to test what you hold.
+- **More texts to explore:** the Apocrypha, canon history, Second Temple writings, the Church Fathers, other scriptures, ancient Near Eastern texts and literature that argues with the Bible.
+- **Five short questions to start.** They set where your path begins and how hard the studies push. Change them any time.
 
-## Test locally
-`python3 -m http.server 8000` in this folder, then open http://localhost:8000
+**Private by design.** Everything is stored on your device. No account, no tracking.
 
-## Adding content
-- Daily studies: `content/daily1.js`, `daily2.js` (add a file and import it in `content/daily.js`). The day's study is `dayNumber mod N`.
-- Tracks/lessons: `content/tracks1.js`, `tracks2.js`. Questions, Lab arguments, Library voices: `content/questions.js`, `lab.js`, `library.js`.
-- Unit schema: `t` title, `k` kicker, `ref[]`, `tag`, `c` comfortable reading, `f` fracture, `d[]` dig, `v[[who,text]]`, `b[claim,pushback]`, `q[]`, `s[prompt,left,right]`, `p` practice, `src[]`.
-- After changing code, bump `VERSION` in `sw.js` so installed copies refresh.
+**Try it:** open the app, answer the questions, and begin today’s study.
 
-## Credits & licences
-Berean Standard Bible, KJV (with Apocrypha) and ASV are public domain, via scrollmapper/bible_databases. Cross-references from OpenBible.info (CC-BY). Scholarly citations are pointers for further reading; verify details against the works themselves.
+Study content draws on *Beneath the Absolute* by O.K. Mantz, and on the scholarship named in each study. Positions are offered for examination, not endorsement.
+
+---
+<sub>Hosting it yourself: copy this folder to the root of a GitHub repo and turn on Pages (Settings → Pages → deploy from branch). It is a plain static site; to run it locally use `python3 -m http.server`. Bible texts are public domain (BSB, KJV, ASV); cross-references are from OpenBible.info (CC-BY).</sub>

@@ -1,4 +1,5 @@
 import { S, save, addXP, key, markActive } from '../store.js';
+import { ic } from '../icons.js';
 import * as B from '../bible.js';
 import { drawArcs, wireArcs } from '../arcs.js';
 import { ctx } from '../ctx.js';
@@ -7,6 +8,8 @@ import { toast, md, loading } from '../ui.js';
 import { checkAch } from '../ach.js';
 import HARD from '../../content/hardnotes.js';
 import BOOKS from '../../content/books.js';
+import { PROV } from '../../content/banks.js';
+import { respondHTML, wireRespond } from '../respond.js';
 
 let HN = null;
 const hardMap = () => {
@@ -59,14 +62,14 @@ export async function view({ p1, p2, q }) {
     const v = i + 1, k = key(b, c, v), n = (xr[`${c}.${v}`] || []).length / 5, hn = hm[`${b}.${c}.${v}`];
     const hl = S.hl[k] ? ' hl-' + S.hl[k] : '';
     const note = S.notes[k]?.t, bm = S.bm[k];
-    return `<p class="v${hl}" data-v="${v}" data-act="selVerse" tabindex="0"><sup>${v}</sup>${esc(t)}<span class="badge">${n ? `<b title="${n} connections">${n}</b>` : ''}${hn ? '<b class="flag" title="Challenge note">⚑</b>' : ''}${note ? '<b title="You wrote a note">✎</b>' : ''}${bm ? '<b title="Bookmarked">★</b>' : ''}</span></p>`;
+    return `<p class="v${hl}" data-v="${v}" data-act="selVerse" tabindex="0"><sup>${v}</sup>${esc(t)}<span class="badge">${n ? `<b title="${n} connections">${n}</b>` : ''}${hn ? `<b class="flag" title="Challenge note">${ic('flag')}</b>` : ''}${note ? `<b title="You wrote a note">${ic('pen')}</b>` : ''}${bm ? `<b title="Bookmarked">${ic('bookmark')}</b>` : ''}</span></p>`;
   }).join('');
   const prev = c > 1 ? `#/read/${b}/${c - 1}` : b > 0 ? `#/read/${b - 1}/${B.META[b - 1].v.length}` : null;
   const next = c < m.v.length ? `#/read/${b}/${c + 1}` : b < 79 ? `#/read/${b + 1}/1` : null;
   const isRead = !!S.read[`${b}.${c}`];
   const html = `
   <div class="reader-top">
-    <a class="btn sm ghost" href="#/read/${b}">${esc(m.n)} ▾</a>
+    <a class="btn sm ghost" href="#/read/${b}">${esc(m.n)} ${ic('chevron')}</a>
     <select id="chsel" aria-label="Chapter" style="width:auto">${m.v.map((_, i) => `<option value="${i + 1}" ${i + 1 === c ? 'selected' : ''}>Chapter ${i + 1}</option>`).join('')}</select>
     <span class="sp"></span>
     ${Object.values(B.TRANS).map(t => `<button class="pill ${t.id === trans ? 'on' : ''}" data-act="trans" data-t="${t.id}" title="${esc(t.name)}">${t.short}</button>`).join('')}
@@ -76,9 +79,9 @@ export async function view({ p1, p2, q }) {
   <p class="small faint">${esc(B.TRANS[trans].name)}${trans !== pref ? ' — the Apocrypha is only available in the KJV' : ''} · tap any verse for its connections</p>
   ${b < 66 ? `<div class="arcwrap"><canvas id="arcs" aria-label="Rainbow cross-reference arcs for this chapter"></canvas><div class="cap"><span id="arc-cap">Every arc is a cross-reference from this chapter. Tap one to jump.</span><span>Genesis ⟶ Revelation</span></div></div>` : `<div class="callout mt">Cross-reference data covers the 66 canonical books. Apocrypha chapters can still be read, highlighted and annotated.</div>`}
   <div class="scripture mt" id="verses">${vHTML}</div>
-  <div class="between mt2"><div class="row">${prev ? `<a class="btn" href="${prev}">← Previous</a>` : ''}</div><button class="btn ${isRead ? '' : 'pri'}" id="mark" data-act="markRead">${isRead ? '✓ Read' : 'Mark chapter read'}</button><div class="row">${next ? `<a class="btn" href="${next}">Next →</a>` : ''}</div></div>
+  <div class="between mt2"><div class="row">${prev ? `<a class="btn" href="${prev}">← Previous</a>` : ''}</div><button class="btn ${isRead ? '' : 'pri'}" id="mark" data-act="markRead">${isRead ? ic('check') + ' Read' : 'Mark chapter read'}</button><div class="row">${next ? `<a class="btn" href="${next}">Next →</a>` : ''}</div></div>
   <div id="sentinel" style="height:1px"></div>
-  <div class="sheet" id="sheet" role="dialog" aria-label="Verse tools"><div class="sheet-grip"></div><div class="sheet-h"><h3 id="sh-title">Verse</h3><button class="icon-btn" data-act="closeSheet" aria-label="Close">✕</button></div><div class="sheet-tabs" id="sh-tabs"></div><div class="sheet-b" id="sh-body"></div></div>`;
+  <div class="sheet" id="sheet" role="dialog" aria-label="Verse tools"><div class="sheet-grip"></div><div class="sheet-h"><h3 id="sh-title">Verse</h3><button class="icon-btn" data-act="closeSheet" aria-label="Close">${ic('x')}</button></div><div class="sheet-tabs" id="sh-tabs"></div><div class="sheet-b" id="sh-body"></div></div>`;
   const after = () => {
     $('#chsel').addEventListener('change', e => { location.hash = `#/read/${b}/${e.target.value}`; });
     if (b < 66) { drawChapterArcs(null); ctx.resize.push(() => drawChapterArcs(cur.sel)); }
@@ -109,7 +112,7 @@ function markRead(auto) {
   if (!cur) return; const k = `${cur.b}.${cur.c}`;
   if (S.read[k]) return; S.read[k] = Date.now(); save();
   addXP(5, 'chapter read'); markActive(); checkAch();
-  const btn = $('#mark'); if (btn) { btn.textContent = '✓ Read'; btn.classList.remove('pri'); }
+  const btn = $('#mark'); if (btn) { btn.innerHTML = ic('check') + ' Read'; btn.classList.remove('pri'); }
   window.dispatchEvent(new Event('app:plans'));
 }
 /* ---------- verse sheet ---------- */
@@ -124,10 +127,11 @@ function openSheet(t) {
   tab = t || tab; const sh = $('#sheet'); sh.classList.add('open');
   const { b, c, sel } = cur; const hm = hardMap()[`${b}.${c}.${sel}`];
   $('#sh-title').textContent = B.label(b, c, sel);
-  $('#sh-tabs').innerHTML = [['conn', 'Connections'], ['note', 'Note & mark'], ...(hm ? [['hard', '⚑ Challenge']] : []), ['cmp', 'Compare']].map(([id, n]) => `<button class="pill ${tab === id ? 'on' : ''}" data-act="sheetTab" data-t="${id}">${n}</button>`).join('');
+  $('#sh-tabs').innerHTML = [['conn', 'Connections'], ['note', 'Note & mark'], ['resp', 'Respond'], ...(hm ? [['hard', 'Challenge']] : []), ['cmp', 'Compare']].map(([id, n]) => `<button class="pill ${tab === id ? 'on' : ''}" data-act="sheetTab" data-t="${id}">${n}</button>`).join('');
   const body = $('#sh-body');
   if (tab === 'conn') renderConns(body);
   else if (tab === 'note') renderNote(body);
+  else if (tab === 'resp') renderResp(body);
   else if (tab === 'hard') body.innerHTML = (hm || []).map(h => `<div class="hardnote"><b>${esc(h.title)}</b>${md(h.text)}</div>`).join('');
   else renderCompare(body);
 }
@@ -145,8 +149,14 @@ function renderNote(body) {
   const k = key(cur.b, cur.c, cur.sel), n = S.notes[k]?.t || '', hl = S.hl[k];
   body.innerHTML = `<p class="kicker">Highlight</p><div class="swatches">${[['y', '#e8c34a'], ['g', '#6fcf97'], ['b', '#7aa7ff'], ['p', '#b98cff'], ['r', '#eb6b78']].map(([id, col]) => `<button class="sw ${hl === id ? 'on' : ''}" style="background:${col}" data-act="hl" data-c="${id}" aria-label="Highlight ${id}"></button>`).join('')}<button class="btn sm ghost" data-act="hl" data-c="">Clear</button></div>
   <p class="kicker mt">Your note</p><textarea id="note-t" placeholder="What does this verse do to you? What does it contradict? What would you ask the author?">${esc(n)}</textarea>
-  <div class="row mt"><button class="btn sm" data-act="bm">${S.bm[k] ? '★ Bookmarked' : '☆ Bookmark'}</button><button class="btn sm" data-act="copy">Copy verse</button><a class="btn sm" href="#/search?q=${encodeURIComponent(cur.verses[cur.sel - 1].split(/\s+/).slice(0, 5).join(' '))}">Find similar</a></div>`;
+  <div class="row mt"><button class="btn sm" data-act="bm">${S.bm[k] ? 'Bookmarked' : 'Bookmark'}</button><button class="btn sm" data-act="copy">Copy verse</button><a class="btn sm" href="#/search?q=${encodeURIComponent(cur.verses[cur.sel - 1].split(/\s+/).slice(0, 5).join(' '))}">Find similar</a></div>`;
   $('#note-t').addEventListener('input', debounce(e => { const had = S.notes[k]?.t?.trim(); S.notes[k] = { t: e.target.value, ts: Date.now() }; if (!e.target.value.trim()) delete S.notes[k]; save(); if (!had && e.target.value.trim()) { addXP(3, 'note'); } checkAch(); refreshBadge(cur.sel); }, 500));
+}
+function renderResp(body) {
+  const { b, c, sel, verses } = cur, lab = B.label(b, c, sel), k = `verse:${b}.${c}.${sel}`;
+  const prov = PROV[(b * 7 + c * 3 + sel) % PROV.length];
+  body.innerHTML = `<p class="kicker">A provocation</p><p class="vprompt" style="font-size:1.05rem;color:var(--text)">${esc(prov)}</p><p class="small muted" style="font-family:var(--serif)">${esc(verses[sel - 1])}</p>${respondHTML(k, { title: lab, ref: lab, questions: [prov], label: lab })}`;
+  wireRespond(body);
 }
 async function renderCompare(body) {
   body.innerHTML = loading('Comparing translations…');
@@ -157,7 +167,7 @@ async function renderCompare(body) {
 function refreshBadge(v) {
   const p = $(`.v[data-v="${v}"]`); if (!p) return; const k = key(cur.b, cur.c, v);
   const n = (cur.xr[`${cur.c}.${v}`] || []).length / 5, hn = hardMap()[`${cur.b}.${cur.c}.${v}`];
-  p.querySelector('.badge').innerHTML = `${n ? `<b>${n}</b>` : ''}${hn ? '<b class="flag">⚑</b>' : ''}${S.notes[k] ? '<b>✎</b>' : ''}${S.bm[k] ? '<b>★</b>' : ''}`;
+  p.querySelector('.badge').innerHTML = `${n ? `<b>${n}</b>` : ''}${hn ? `<b class="flag">${ic('flag')}</b>` : ''}${S.notes[k] ? `<b>${ic('pen')}</b>` : ''}${S.bm[k] ? `<b>${ic('bookmark')}</b>` : ''}`;
   p.className = 'v sel' + (S.hl[k] ? ' hl-' + S.hl[k] : '');
 }
 export const actions = {

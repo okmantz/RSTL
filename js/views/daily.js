@@ -1,41 +1,66 @@
-import { S, dayRec } from '../store.js';
+import { S, save } from '../store.js';
 import * as B from '../bible.js';
 import { renderUnit, unitActions } from '../unit.js';
 import { checkinCard, checkinActions } from '../checkin.js';
-import { esc, todayISO, dayNumber, mod, addDays, fmtDate, $ } from '../util.js';
-import { md } from '../ui.js';
-import { bookColor } from '../util.js';
-import daily from '../../content/daily.js';
+import { esc, todayISO, addDays, fmtDate, $, bookColor } from '../util.js';
+import { ic } from '../icons.js';
+import { rerender, toast } from '../ui.js';
+import * as C from '../curriculum.js';
+import { SEASONS } from '../../content/traditions.js';
 
-export const actions = { ...checkinActions, ...unitActions };
+export const actions = {
+  ...checkinActions, ...unitActions,
+  setSeason(el) {
+    const sid = el.dataset.sid; S.profile.season = sid; S.profile.start = todayISO(); save();
+    toast('Your path now begins with ' + C.seasonName(sid) + ', starting today.'); location.hash = '#/daily';
+  }
+};
+const short = iso => fmtDate(iso).split(',')[1]?.trim() || iso;
+
 export async function view({ p1 }) {
-  const today = todayISO();
-  let iso = p1 || today;
+  const today = todayISO(), start = C.startISO();
+  const iso = p1 || today;
   if (iso > today) { location.hash = '#/daily'; return { html: '' }; }
-  const n = dayNumber(iso), idx = mod(n, daily.length), u = daily[idx];
-  const lap = Math.floor(n / daily.length);
+  if (iso < start) return { html: `<div class="narrow card"><h2>Before your start date</h2><p class="muted">Your path began on ${esc(fmtDate(start))}. <a href="#/daily">Go to today</a> or <a href="#/daily/journey">open your journey</a>.</p></div>` };
+  const { n, idx, lap } = C.indexFor(iso), u = C.unitAt(idx), L = C.length();
   const prev = addDays(iso, -1), next = addDays(iso, 1);
-  const head = `<div class="between mb0" style="margin-bottom:14px"><a class="btn sm ghost" href="#/daily/${prev}">← ${esc(fmtDate(prev).split(',')[1].trim())}</a><div class="center small muted" style="text-align:center">${iso === today ? '<span class="tag gold">Today</span> ' : ''}${esc(fmtDate(iso))}<br><span class="tiny faint">Study ${idx + 1} of ${daily.length}${lap > 0 ? ' · lap ' + (lap + 1) : ''}</span></div>${iso < today ? `<a class="btn sm ghost" href="#/daily/${next}">${esc(fmtDate(next).split(',')[1].trim())} →</a>` : '<span style="width:80px"></span>'}</div>`;
+  const head = `<div class="between" style="margin-bottom:14px">${iso > start ? `<a class="btn sm ghost" href="#/daily/${prev}">${ic('arrowL')} ${esc(short(prev))}</a>` : '<span style="width:80px"></span>'}<div style="text-align:center" class="small muted">${iso === today ? '<span class="tag gold">Today</span> ' : ''}${esc(fmtDate(iso))}<br><span class="tiny faint">Day ${n + 1} · study ${idx + 1} of ${L}${lap > 0 ? ' · lap ' + (lap + 1) : ''} · <a href="#/daily/journey">journey</a></span></div>${iso < today ? `<a class="btn sm ghost" href="#/daily/${next}">${esc(short(next))} ${ic('arrowR')}</a>` : '<span style="width:80px"></span>'}</div>`;
   const checkin = iso === today ? `<div class="narrow" style="margin-bottom:16px">${checkinCard()}</div>` : '';
   const r = renderUnit(u, 'daily:' + iso, 'daily', head);
   const html = `<div class="narrow">${checkin}</div>${r.html}<div class="narrow mt2" id="thread"></div>`;
   const after = async () => {
     await r.after();
+    if (!u.deep) return;
     try {
       const p = B.parseRef(u.ref[0]); if (!p) return;
       const xr = await B.xrefs(p.b); const v0 = p.v || 1;
       let list = B.unpack(xr[`${p.c}.${v0}`] || []);
-      if (!list.length) { // fall back: any verse in the chapter with refs
-        for (let v = 1; v < 60 && !list.length; v++) list = B.unpack(xr[`${p.c}.${v}`] || []);
-      }
+      for (let v = 1; v < 60 && !list.length; v++) list = B.unpack(xr[`${p.c}.${v}`] || []);
       list = list.slice(0, 5); if (!list.length) return;
-      const t = S.profile.trans; const rows = [];
+      const t = S.profile.trans, rows = [];
       for (const x of list) {
         const txt = await B.snippet(t, x, 200);
         rows.push(`<a class="xcard" style="--c:${bookColor(x.b)}" href="#/read/${x.b}/${x.c}?v=${x.v}"><div class="r"><span>${esc(B.label(x.b, x.c, x.v, x.ve))}</span><span class="w">${x.w} votes</span></div><div class="t">${esc(txt)}</div></a>`);
       }
-      $('#thread').innerHTML = `<div class="kicker">Thread of the day</div><h3>What do these have to do with ${esc(B.label(p.b, p.c, v0))}?</h3><p class="muted small">Readers have linked these passages to today’s text. Pick two that seem unrelated and write down what they’re doing in the same conversation.</p>${rows.join('')}`;
+      $('#thread').innerHTML = `<div class="kicker">Thread of the day</div><h3>What do these have to do with ${esc(B.label(p.b, p.c, v0))}?</h3><p class="muted small">Readers have linked these passages to today’s text. Pick two that seem unrelated and write down what they are doing in the same conversation.</p>${rows.join('')}`;
     } catch (e) { }
   };
-  return { html, after };
+  return { html, after, title: u.t };
+}
+
+export async function journeyView() {
+  const today = todayISO(), L = C.length(), { idx } = C.indexFor(today);
+  const blocks = C.seasonBlocks();
+  const doneAt = i => { const d = addDays(C.startISO(), i); return !!S.units['daily:' + d]?.done; };
+  const total = Object.entries(S.units).filter(([k, x]) => k.startsWith('daily:') && x.done).length;
+  const rows = blocks.map(b => {
+    let dn = 0; for (let i = b.start; i <= b.end; i++) if (doneAt(i)) dn++;
+    const here = idx >= b.start && idx <= b.end;
+    return `<div class="card mt"><div class="between"><div><div class="kicker">${here ? 'You are here' : 'Season'}</div><h3 class="mb0">${esc(b.n)}</h3><div class="small muted">${esc(b.sub)} · ${b.days} days · studies ${b.start + 1}–${b.end + 1}</div></div><button class="btn sm" data-act="setSeason" data-sid="${b.sid}">${here ? 'Restart here' : 'Begin here'}</button></div><div class="bar thin mt"><i style="width:${Math.round(dn / b.days * 100)}%"></i></div><div class="tiny faint mt">${dn} of ${b.days} finished on their own day</div></div>`;
+  }).join('');
+  const nextRows = []; for (let i = 0; i < 10; i++) { const j = (idx + i) % L, d = addDays(today, i); nextRows.push(`<div class="jr-row ${i === 0 ? 'now' : ''}"><span>${esc(C.titleAt(j))}${C.kindAt(j) === 'deep' ? ' <span class="tag gold">Deep dive</span>' : ''}</span><span class="faint">${esc(short(d))}</span></div>`); }
+  const html = `<div class="narrow"><a class="small" href="#/daily">${ic('arrowL')} Today</a><h1 style="margin-top:8px">Your journey</h1><p class="muted">${L} different studies, one a day, about ${(L / 365).toFixed(1)} years. ${C.deepCount()} are handwritten deep dives; the rest are guided readings built from the text, the cross-references and the book guides. You have finished ${total} so far. After the last day the path begins again with new lenses and questions.</p>
+  <div class="sec-h"><h2>Coming up</h2></div><div class="card">${nextRows.join('')}</div>
+  <div class="sec-h"><h2>Seasons</h2></div><p class="small muted">Change the order any time. Choosing a season starts it today; what you have already written stays saved.</p>${rows}</div>`;
+  return { html, title: 'Journey' };
 }

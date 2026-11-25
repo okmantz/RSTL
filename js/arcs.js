@@ -15,7 +15,7 @@ export function drawArcs(canvas, opts) {
   for (let b = 0; b < 66; b++) {
     const g0 = OFF[b], g1 = b < 65 ? OFF[b + 1] : TOTAL;
     const x0 = pad + (g0 / TOTAL) * (W - pad * 2), x1 = pad + (g1 / TOTAL) * (W - pad * 2);
-    ctx.fillStyle = `hsl(${bookHue(b)} 70% 58%)`;
+    ctx.fillStyle = `hsl(${bookHue(b)} 48% 58%)`;
     ctx.fillRect(x0, base + 3, Math.max(1, x1 - x0 - 0.6), barH);
   }
   const hits = [];
@@ -32,7 +32,7 @@ export function drawArcs(canvas, opts) {
     const strength = Math.min(1, p.w / maxW);
     ctx.beginPath();
     ctx.ellipse((x1 + x2) / 2, base, r, ry, 0, Math.PI, 2 * Math.PI);
-    ctx.strokeStyle = `hsla(${h} 85% 62% / ${(opts.pairs ? 0.16 + strength * 0.5 : 0.35 + strength * 0.5) * dim})`;
+    ctx.strokeStyle = `hsla(${h} 56% 62% / ${(opts.pairs ? 0.16 + strength * 0.5 : 0.35 + strength * 0.5) * dim})`;
     ctx.lineWidth = opts.pairs ? 0.6 + strength * 1.2 : 1 + strength * 2.2;
     ctx.stroke();
     if (opts.from != null) hits.push({ x: X(p.b), g: p.b, w: p.w });

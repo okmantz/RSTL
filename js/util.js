@@ -10,4 +10,4 @@ export const mod = (n, m) => ((n % m) + m) % m;
 export const fmtDate = iso => parseISO(iso).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 export const debounce = (fn, ms = 300) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 export const hue = (bookIndex) => Math.round((bookIndex / 66) * 300);
-export const bookColor = (i, l = 62) => `hsl(${hue(Math.min(i, 65))} 78% ${l}%)`;
+export const bookColor = (i, l = 62) => `hsl(${hue(Math.min(i, 65))} 52% ${l}%)`;

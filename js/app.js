@@ -4,7 +4,8 @@ import { ctx } from './ctx.js';
 import { toast, icon, applyPrefs, loading } from './ui.js';
 import { checkAch } from './ach.js';
 import { unitActions } from './unit.js';
-import { $, $$, esc, debounce } from './util.js';
+import { $, $$, esc, debounce, todayISO } from './util.js';
+import { ic } from './icons.js';
 
 hook(toast, checkAch);
 applyPrefs(S);
@@ -12,10 +13,15 @@ applyPrefs(S);
 const V = {
   home: () => import('./views/home.js'), daily: () => import('./views/daily.js'), read: () => import('./views/read.js'),
   study: () => import('./views/study.js'), questions: () => import('./views/questions.js'), lab: () => import('./views/lab.js'),
-  beliefs: () => import('./views/beliefs.js'), library: () => import('./views/library.js'), profile: () => import('./views/profile.js'), search: () => import('./views/search.js')
+  beliefs: () => import('./views/beliefs.js'), library: () => import('./views/library.js'), profile: () => import('./views/profile.js'), search: () => import('./views/search.js'),
+  welcome: () => import('./views/welcome.js'), journal: () => import('./views/journal.js'), resources: () => import('./views/resources.js')
 };
 const ROUTES = [
   [/^\/?$/, 'home', m => m.view, 'home'],
+  [/^\/welcome\/?$/, 'welcome', m => m.view, 'home'],
+  [/^\/journal\/?$/, 'journal', m => m.view, 'profile'],
+  [/^\/study\/resources(?:\/([\w-]+))?\/?$/, 'resources', m => m.view, 'study'],
+  [/^\/daily\/journey\/?$/, 'daily', m => m.journeyView, 'daily'],
   [/^\/daily(?:\/(\d{4}-\d{2}-\d{2}))?\/?$/, 'daily', m => m.view, 'daily'],
   [/^\/read\/?$/, 'read', m => m.libView, 'read'],
   [/^\/read\/(\d+)\/?$/, 'read', m => m.bookView, 'read'],
@@ -53,6 +59,7 @@ async function render(keepScroll) {
   const q = Object.fromEntries(new URLSearchParams(qs || ''));
   let hit = null; for (const r of ROUTES) { const m = r[0].exec(path); if (m) { hit = { r, m }; break; } }
   const y = keepScroll ? scrollY : 0;
+  if (!S.profile.onboarded && !path.startsWith('/welcome')) { location.hash = '#/welcome'; return; }
   if (!hit) { main.innerHTML = `<div class="narrow"><h1>Lost?</h1><p><a href="#/">Go home</a></p></div>`; return; }
   const [, name, pick, tab] = hit.r;
   main.innerHTML = loading();
@@ -67,7 +74,7 @@ async function render(keepScroll) {
     if (out.after) await out.after();
     scrollTo(0, y);
     if (!keepScroll) main.focus({ preventScroll: true });
-    document.title = (out.title ? out.title + ' · ' : '') + 'Beneath the Deep';
+    document.title = (out.title ? out.title + ' · ' : '') + 'RSTL';
   } catch (e) {
     console.error(e);
     if (id === navId) main.innerHTML = `<div class="narrow card"><h2>Something went wrong</h2><p class="muted">${esc(e.message || e)}</p><p><a class="btn" href="#/">Home</a> <button class="btn" onclick="location.reload()">Reload</button></p></div>`;
@@ -86,14 +93,19 @@ window.addEventListener('app:rerender', () => render(true));
 window.addEventListener('unit:done', async e => { if (String(e.detail).startsWith('lesson:')) { try { (await V.study()).checkTrack(e.detail); } catch (er) { } } });
 window.addEventListener('app:plans', async () => { try { (await V.study()).checkPlans(); } catch (e) { } });
 window.addEventListener('resize', debounce(() => ctx.resize.forEach(f => f()), 150));
+const NAV = [['/', 'home', 'home', 'Home'], ['/read', 'read', 'book', 'Read'], ['/daily', 'daily', 'sun', 'Daily'], ['/study', 'study', 'cap', 'Study'], ['/profile', 'profile', 'user', 'Profile']];
 function chrome() {
-  $('#xp-chip').textContent = ''; refreshChip();
+  $('#dnav').innerHTML = NAV.map(([h, t, , n]) => `<a href="#${h}" data-tab="${t}">${n}</a>`).join('');
+  $('#bnav').innerHTML = NAV.map(([h, t, i, n]) => `<a href="#${h}" data-tab="${t}">${ic(i)}${n}</a>`).join('');
+  $('#search-btn').innerHTML = ic('search');
+  refreshChip();
 }
-function refreshChip() { const li = levelInfo(); $('#xp-chip').textContent = `Lv ${li.level} · 🔥${streak()}`; }
+function refreshChip() { const li = levelInfo(); $('#xp-chip').innerHTML = `Lv ${li.level} · ${ic('flame')} ${streak()}`; }
 setInterval(refreshChip, 4000);
 (async () => {
   main.innerHTML = loading('Opening the library…');
   try { await B.init(); } catch (e) { main.innerHTML = `<div class="narrow card"><h2>Couldn’t load Bible data</h2><p class="muted">If you opened index.html directly from your computer, browsers block local data loading. Host it on GitHub Pages, or run <code>python3 -m http.server</code> in this folder and open http://localhost:8000.</p></div>`; return; }
+  if (!S.profile.start) { S.profile.start = todayISO(); }
   chrome(); await render(false); checkAch();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
 })();

@@ -1,4 +1,6 @@
 import { S, save, addXP, markActive } from '../store.js';
+import { respondHTML, wireRespond, reactRow } from '../respond.js';
+import { ic } from '../icons.js';
 import { checkAch } from '../ach.js';
 import { esc } from '../util.js';
 import { md } from '../ui.js';
@@ -23,11 +25,12 @@ export async function view({ p1 }) {
     <div id="verdict">${verdict({ prem: a.prem, valid: a.valid }, st)}</div>
     <details class="blk mt" open><summary>Where it’s strongest</summary><div class="in">${md(a.strong)}</div></details>
     <details class="blk fracture" open><summary>Where it’s attacked</summary><div class="in">${md(a.weak)}</div></details>
+    <div class="mt">${respondHTML('arg:' + a.id, { title: a.t, ref: '', questions: a.prem.map(p => 'Premise: ' + p[0].replace(/\*/g, '')), label: a.t })}${reactRow('arg:' + a.id, 'a', a.t)}</div>
     ${a.src2 ? `<details class="blk"><summary>Read further</summary><div class="in"><ul class="src">${a.src2.map(s => `<li>${md(s)}</li>`).join('')}</ul></div></details>` : ''}</div>`;
-    return { html };
+    return { html, after: () => wireRespond() };
   }
   const html = `<a class="small" href="#/study">← Study</a><h1 style="margin-top:6px">Argument Lab</h1><p class="muted narrow" style="margin-left:0">Philosophy’s oldest move: grant nothing for free. For each argument, mark every premise <b>Accept</b>, <b>Unsure</b> or <b>Reject</b>. The Lab shows where the argument breaks <em>for you</em> — and what defenders and critics say about that exact joint.</p>
-  <div class="list mt">${labs.map(a => { const st = S.args[a.id] || {}; return `<a class="item ${st.tested ? 'done' : ''}" href="#/study/lab/${a.id}"><span class="n">${st.tested ? '✓' : '⚖'}</span><div><h3>${esc(a.t)}</h3><p>${esc(a.src)} · ${a.prem.length} premises</p></div></a>`; }).join('')}</div>`;
+  <div class="list mt">${labs.map(a => { const st = S.args[a.id] || {}; return `<a class="item ${st.tested ? 'done' : ''}" href="#/study/lab/${a.id}"><span class="n">${st.tested ? ic('check') : ic('scale')}</span><div><h3>${esc(a.t)}</h3><p>${esc(a.src)} · ${a.prem.length} premises</p></div></a>`; }).join('')}</div>`;
   return { html };
 }
 export const actions = {

@@ -1,7 +1,7 @@
 // Tracks 1–4
 export default [
 {
-id: 'canon', icon: '📜', title: 'Whose Book Is This?',
+id: 'canon', icon: 'scroll', title: 'Whose Book Is This?',
 desc: 'How the Bible was written, copied, collected and argued over, and what “inspired” can mean after you know.',
 lessons: [
 {
@@ -59,7 +59,7 @@ src: [`Lee Martin McDonald, *The Biblical Canon* (Hendrickson, 2007)`, `Bruce M.
 ]
 },
 {
-id: 'trial', icon: '⚖️', title: 'God on Trial',
+id: 'trial', icon: 'scale', title: 'God on Trial',
 desc: 'Evil, suffering, hiddenness, judgment. The cross-examination faith has to survive.',
 lessons: [
 {
@@ -104,7 +104,7 @@ src: [`Peter Enns, *The Evolution of Adam* (Brazos, 2012)`, `John H. Walton, *Th
 ]
 },
 {
-id: 'trinity', icon: '🔱', title: 'Three and One',
+id: 'trinity', icon: 'triad', title: 'Three and One',
 desc: 'How the Trinity was formed, argued, and defended, and whether it is in the text or arrived later.',
 lessons: [
 {
@@ -149,7 +149,7 @@ src: [`Richard of St Victor, *De Trinitate* (c. 1170)`, `Jürgen Moltmann, *The 
 ]
 },
 {
-id: 'jesus', icon: '✝️', title: 'The Jesus Question',
+id: 'jesus', icon: 'cross', title: 'The Jesus Question',
 desc: 'What can history say? What did Jesus claim? And how strong is the evidence outside the Gospels?',
 lessons: [
 {

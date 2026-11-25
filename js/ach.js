@@ -29,6 +29,10 @@ export function stats() {
     snaps: S.beliefs.snaps.length, moved: beliefMoved(),
     voices: Object.keys(S.lib).length,
     plansDone: Object.values(S.plans).filter(p => p.done).length,
+    resps: Object.values(S.resp).filter(r => (r.steel && Object.values(r.steel).some(v => v && v.trim().length > 3)) || (r.voice && r.voice.t && r.voice.t.trim()) || (r.sit && r.sit.trim())).length,
+    steels: Object.values(S.resp).filter(r => r.steel && ['view','obj','chg','say'].every(f => r.steel[f] && r.steel[f].trim().length > 3)).length,
+    myqs: S.myq.length,
+    reacts: Object.keys(S.react).length,
     level: levelInfo().level
   };
 }
@@ -43,7 +47,7 @@ export function checkAch() {
   for (const a of ACH) {
     if (S.ach[a.id]) continue;
     let ok = false; try { ok = a.t(s); } catch (e) { }
-    if (ok) { S.ach[a.id] = Date.now(); S.xp += 25; any = true; toast(`${a.i} ${a.n} — achievement unlocked (+25 XP)`, 'ach'); }
+    if (ok) { S.ach[a.id] = Date.now(); S.xp += 25; any = true; toast(`Achievement: ${a.n} (+25 XP)`, 'ach'); }
   }
   if (any) save();
 }

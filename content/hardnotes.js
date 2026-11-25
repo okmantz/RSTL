@@ -1,4 +1,4 @@
-// [reference, title, note]. A flag (⚑) appears on the verse in the Reader. Notes summarise mainstream scholarly discussion; positions differ and are named.
+// [reference, title, note]. A flag icon appears on the verse in the Reader. Notes summarise mainstream scholarly discussion; positions differ and are named.
 export default [
 ["Genesis 1:1","What does ‘create’ claim?","The grammar can be read ‘When God began to create…’ (Rashi, many modern translations), with matter already present in 1:2. Creation *from nothing* is not clearly stated until 2 Maccabees 7:28 and later theology. How much of your doctrine of creation is in this verse, and how much was added later?"],
 ["Genesis 1:26","‘Let us make…’","Who is ‘us’? Proposals: the divine council (Gen 3:22, 11:7; Job 1; Ps 82), a plural of majesty, Trinitarian reading (Church Fathers, retrospective). Most critical scholars favour the divine council. The Trinitarian reading is a later reading of an earlier text."],

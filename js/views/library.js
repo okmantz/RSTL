@@ -1,7 +1,9 @@
 import { S, save, addXP, markActive } from '../store.js';
+import { ic } from '../icons.js';
 import { checkAch } from '../ach.js';
 import { esc } from '../util.js';
 import { md, toast } from '../ui.js';
+import { respondHTML, wireRespond, reactRow } from '../respond.js';
 let LIB = null; const load = async () => LIB || (LIB = await import('../../content/library.js'));
 export async function view({ p1 }) {
   const { default: V, KINDS, SHELF } = await load();
@@ -12,9 +14,10 @@ export async function view({ p1 }) {
     <div class="blk voices" open style="padding:16px 18px"><div class="voice"><b>${esc(v.xl || 'In brief')}</b><span>${md(v.x)}</span></div></div>
     <div class="blk fracture" style="padding:16px 18px;margin-top:12px"><div class="kicker" style="color:var(--bad)">Why this unsettles</div><p style="font-family:var(--serif);margin:6px 0 0">${md(v.why)}</p></div>
     ${v.q ? `<div class="card mt"><div class="kicker">Ask yourself</div><p class="mb0" style="font-family:var(--serif)">${md(v.q)}</p></div>` : ''}
-    ${v.l ? `<p class="mt small">Read more: ${v.l.map(([t, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(t)} ↗</a>`).join(' · ')}</p>` : ''}
+    ${v.l ? `<p class="mt small">Read more: ${v.l.map(([t, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(t)} ${ic('external')}</a>`).join(' · ')}</p>` : ''}
+    <div class="mt">${respondHTML('voice:' + v.id, { title: v.n, ref: '', questions: v.q ? [v.q] : [], label: v.n })}${reactRow('voice:' + v.id, 'x', v.n)}</div>
     <p class="tiny faint">Summaries here are paraphrase. Quoted words are short, from public-domain translations where named. Always read the primary text itself.</p></div>`;
-    return { html };
+    return { html, after: () => wireRespond() };
   }
   const html = `<a class="small" href="#/study">← Study</a><h1 style="margin-top:6px">Library of Voices</h1><p class="muted narrow" style="margin-left:0">The Bible didn’t arrive in a vacuum, and it isn’t the only book people have staked their lives on. Read it in conversation with the texts it quotes, the texts it excluded, the texts that answered it, and the traditions that see the same questions from the other side.</p>
   <div class="tabs" id="vtabs">${[['all', 'All'], ...Object.entries(KINDS)].map(([k, n], i) => `<button class="pill ${i === 0 ? 'on' : ''}" data-act="vfilter" data-k="${k}">${esc(n)}</button>`).join('')}</div>

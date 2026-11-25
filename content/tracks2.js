@@ -1,7 +1,7 @@
 // Tracks 5–9 + seminar
 export default [
 {
-id: 'mountains', icon: '⛰️', title: 'Many Mountains',
+id: 'mountains', icon: 'mountain', title: 'Many Mountains',
 desc: 'Read the Qur’an, the Gita, the Dhammapada, the Analects and the Tao Te Ching beside the Gospel, and say what is actually different.',
 lessons: [
 {
@@ -59,7 +59,7 @@ src: [`D. C. Lau, trans., *The Analects* (Penguin, 1979)`, `Stephen Mitchell, tr
 ]
 },
 {
-id: 'faith', icon: '🎲', title: 'Faith as a Risk',
+id: 'faith', icon: 'die', title: 'Faith as a Risk',
 desc: 'The case that belief is neither proof nor feeling, but a wager made with open eyes.',
 lessons: [
 {
@@ -91,7 +91,7 @@ src: [`Søren Kierkegaard, *Concluding Unscientific Postscript* (1846)`, `Fyodor
 ]
 },
 {
-id: 'ethics', icon: '🧭', title: 'Ethics Under Fire',
+id: 'ethics', icon: 'compass', title: 'Ethics Under Fire',
 desc: 'Where the Bible’s moral authority is tested hardest, and how serious Christians have read it.',
 lessons: [
 {
@@ -123,7 +123,7 @@ src: [`Robert A. J. Gagnon, *The Bible and Homosexual Practice* (Abingdon, 2001)
 ]
 },
 {
-id: 'last', icon: '🌅', title: 'The End of the World',
+id: 'last', icon: 'sunrise', title: 'The End of the World',
 desc: 'The failed deadline, the delayed return, the four ways to read Revelation, and what Christians have hoped for.',
 lessons: [
 {
@@ -142,7 +142,7 @@ src: [`Albert Schweitzer, *The Quest of the Historical Jesus* (1906)`, `Dale C. 
 ]
 },
 {
-id: 'seminar', icon: '🌌', title: 'Beneath the Absolute: The Seminar',
+id: 'seminar', icon: 'spark', title: 'Beneath the Absolute: The Seminar',
 desc: 'The book’s argument in eight sessions. Each states the claim, then raises the strongest objection.',
 lessons: [
 {
