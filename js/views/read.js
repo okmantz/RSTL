@@ -76,22 +76,26 @@ export async function view({ p1, p2, q }) {
   const isRead = !!S.read[`${b}.${c}`];
   const html = `
   <div class="reader-top">
-    <a class="btn sm ghost" href="#/read/${b}">${esc(m.n)} ${ic('chevron')}</a>
-    <select id="chsel" aria-label="Chapter" style="width:auto">${m.v.map((_, i) => `<option value="${i + 1}" ${i + 1 === c ? 'selected' : ''}>Chapter ${i + 1}</option>`).join('')}</select>
-    <span class="sp"></span>
-    ${canO && ws ? `<div class="seg" role="tablist" aria-label="Text view">${MODES.map(([id, n]) => `<button role="tab" class="${mode === id ? 'on' : ''}" data-act="rmode" data-m="${id}">${id === 'orig' ? O.langOf(b) : n}</button>`).join('')}</div>` : ''}
-    ${Object.values(B.TRANS).map(t => `<button class="pill ${t.id === trans ? 'on' : ''}" data-act="trans" data-t="${t.id}" title="${esc(t.name)}">${t.short}</button>`).join('')}
-    <button class="icon-btn" data-act="fs" data-d="-1" aria-label="Smaller text">A−</button><button class="icon-btn" data-act="fs" data-d="1" aria-label="Larger text">A+</button>
+    <div class="rt-row">
+      <a class="btn sm ghost" href="#/read/${b}">${esc(m.n)} ${ic('chevron')}</a>
+      <select id="chsel" aria-label="Chapter">${m.v.map((_, i) => `<option value="${i + 1}" ${i + 1 === c ? 'selected' : ''}>Chapter ${i + 1}</option>`).join('')}</select>
+    </div>
+    <div class="rt-row rt-tools">
+      <div class="seg trans" role="group" aria-label="Translation">${Object.values(B.TRANS).map(t => `<button class="${t.id === trans ? 'on' : ''}" aria-pressed="${t.id === trans}" data-act="trans" data-t="${t.id}" title="${esc(t.name)}">${t.short}</button>`).join('')}</div>
+      <div class="rt-size"><button class="icon-btn" data-act="fs" data-d="-1" aria-label="Smaller text">A−</button><button class="icon-btn" data-act="fs" data-d="1" aria-label="Larger text">A+</button></div>
+    </div>
+    ${canO && ws ? `<div class="seg full" role="tablist" aria-label="Text view">${MODES.map(([id, n]) => `<button role="tab" aria-selected="${mode === id}" class="${mode === id ? 'on' : ''}" data-act="rmode" data-m="${id}">${id === 'orig' ? O.langOf(b) : n}</button>`).join('')}</div>` : ''}
   </div>
   <h1 class="reader-title">${esc(m.n)} ${m.v.length > 1 ? c : ''}</h1>
   <p class="small faint">${esc(B.TRANS[trans].name)}${trans !== pref ? ' — the Apocrypha is only available in the KJV' : ''} · tap any verse for its connections${mode !== 'eng' ? ` · tap a ${O.langOf(b)} word for its meaning` : ''}</p>
   ${mode !== 'eng' ? `<p class="tiny faint orig-credit">${O.isNT(b) ? 'Greek: STEPBible TAGNT (Tyndale House), the modern critical text with Textus Receptus variants marked' : 'Hebrew: STEPBible TAHOT (Tyndale House), the Leningrad Codex'} · CC BY 4.0. Verse numbering follows the English text.${mode === 'inter' ? ' Faint words have no English counterpart; italic words are supplied in English.' : ''}</p>` : ''}
-  ${b < 66 ? `<div class="arcwrap"><canvas id="arcs" aria-label="Rainbow cross-reference arcs for this chapter"></canvas><div class="cap"><span id="arc-cap">Every arc is a cross-reference from this chapter. Tap one to jump.</span><span>Genesis ⟶ Revelation</span></div></div>` : `<div class="callout mt">Cross-reference data covers the 66 canonical books. Apocrypha chapters can still be read, highlighted and annotated.</div>`}
+  ${b < 66 ? `<div class="arcwrap"><canvas id="arcs" aria-label="Rainbow cross-reference arcs for this chapter"></canvas><div class="cap"><span id="arc-cap">Every arc is a cross-reference from this chapter. Tap one to jump.</span><span class="nw">Genesis ⟶ Revelation</span></div></div>` : `<div class="callout mt">Cross-reference data covers the 66 canonical books. Apocrypha chapters can still be read, highlighted and annotated.</div>`}
   <div class="scripture mt${mode !== 'eng' ? ' orig-on orig-' + mode : ''}" id="verses">${vHTML}</div>
   <div class="between mt2"><div class="row">${prev ? `<a class="btn" href="${prev}">← Previous</a>` : ''}</div><button class="btn ${isRead ? '' : 'pri'}" id="mark" data-act="markRead">${isRead ? ic('check') + ' Read' : 'Mark chapter read'}</button><div class="row">${next ? `<a class="btn" href="${next}">Next →</a>` : ''}</div></div>
   <div id="sentinel" style="height:1px"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Verse tools"><div class="sheet-grip"></div><div class="sheet-h"><h3 id="sh-title">Verse</h3><button class="icon-btn" data-act="closeSheet" aria-label="Close">${ic('x')}</button></div><div class="sheet-tabs" id="sh-tabs"></div><div class="sheet-b" id="sh-body"></div></div>`;
   const after = () => {
+    ctx.cleanup.push(() => document.body.classList.remove('sheet-open'));
     $('#chsel').addEventListener('change', e => { location.hash = `#/read/${b}/${e.target.value}`; });
     if (b < 66) { drawChapterArcs(null); ctx.resize.push(() => drawChapterArcs(cur.sel)); }
     // auto-mark read after dwell + reaching the end
@@ -104,6 +108,10 @@ export async function view({ p1, p2, q }) {
     if (qv) { const el = $(`.v[data-v="${qv}"]`); if (el) { selectVerse(qv); setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80); } }
   };
   return { html, after };
+}
+function setSheetOpen(on) {
+  document.body.classList.toggle('sheet-open', !!on);
+  window.dispatchEvent(new Event('resize'));   // redraw arcs for the new content width
 }
 let arcModel = null;
 function drawChapterArcs(v) {
@@ -133,7 +141,7 @@ function selectVerse(v) {
 }
 let tab = 'conn', sort = 'votes';
 function openSheet(t) {
-  tab = t || tab; const sh = $('#sheet'); sh.classList.add('open');
+  tab = t || tab; const sh = $('#sheet'); sh.classList.add('open'); setSheetOpen(true);
   const { b, c, sel } = cur; const hm = hardMap()[`${b}.${c}.${sel}`];
   $('#sh-title').textContent = B.label(b, c, sel);
   $('#sh-tabs').innerHTML = [['conn', 'Connections'], ...(cur.ws ? [['orig', O.langOf(b)]] : []), ...(cur.word ? [['word', 'Word']] : []), ['note', 'Note & mark'], ['resp', 'Respond'], ...(hm ? [['hard', 'Challenge']] : []), ['cmp', 'Compare']].map(([id, n]) => `<button class="pill ${tab === id ? 'on' : ''}" data-act="sheetTab" data-t="${id}">${n}</button>`).join('');
@@ -152,7 +160,7 @@ async function renderConns(body) {
   if (!list.length) { body.innerHTML = `<p class="muted">No recorded cross-references for this verse. Try a neighbouring verse — connections cluster around key statements.</p>`; return; }
   if (sort === 'canon') list = [...list].sort((p, q) => (p.b - q.b) || (p.c - q.c) || (p.v - q.v));
   const shown = list.slice(0, 40);
-  body.innerHTML = `<div class="row" style="margin-bottom:10px"><span class="small muted">${list.length} connections</span><span class="sp"></span><button class="pill ${sort === 'votes' ? 'on' : ''}" data-act="sort" data-s="votes">Strongest</button><button class="pill ${sort === 'canon' ? 'on' : ''}" data-act="sort" data-s="canon">In order</button></div><div id="xlist">${loading('Gathering texts…')}</div>`;
+  body.innerHTML = `<div class="row" style="margin-bottom:10px"><span class="small muted">${list.length} connections</span><span class="sp"></span><div class="seg sm" role="group" aria-label="Sort connections"><button class="${sort === 'votes' ? 'on' : ''}" data-act="sort" data-s="votes">Strongest</button><button class="${sort === 'canon' ? 'on' : ''}" data-act="sort" data-s="canon">In order</button></div></div><div id="xlist">${loading('Gathering texts…')}</div>`;
   const rows = await Promise.all(shown.map(async x => { const t = await B.snippet(trans, x, 220); return `<a class="xcard" data-act="xopen" style="--c:${bookColor(x.b)}" href="#/read/${x.b}/${x.c}?v=${x.v}"><div class="r"><span>${esc(B.label(x.b, x.c, x.v, x.ve))}</span><span class="w">${x.w}</span></div><div class="t">${esc(t)}</div></a>`; }));
   if (cur.sel !== sel) return; const el = $('#xlist'); if (el) el.innerHTML = rows.join('') + (list.length > 40 ? `<p class="small faint">Showing the top 40 of ${list.length}.</p>` : '');
 }
@@ -211,7 +219,7 @@ export const actions = {
     cur.word = w; $$('.ow.on,.iw.on').forEach(x => x.classList.remove('on')); if (el.closest('#verses')) el.classList.add('on');
     openSheet('word');
   },
-  closeSheet() { $('#sheet')?.classList.remove('open'); if (cur) { cur.sel = null; $$('#verses .v').forEach(p => p.classList.remove('sel')); drawChapterArcs(null); history.replaceState(null, '', `#/read/${cur.b}/${cur.c}`); } },
+  closeSheet() { $('#sheet')?.classList.remove('open'); setSheetOpen(false); if (cur) { cur.sel = null; $$('#verses .v').forEach(p => p.classList.remove('sel')); drawChapterArcs(null); history.replaceState(null, '', `#/read/${cur.b}/${cur.c}`); } },
   sheetTab(el) { openSheet(el.dataset.t); },
   sort(el) { sort = el.dataset.s; openSheet('conn'); },
   xopen() { S.stats.xrefs = (S.stats.xrefs || 0) + 1; save(); checkAch(); },
