@@ -31,3 +31,9 @@ Study content draws on *Beneath the Absolute* by O.K. Mantz, and on the scholars
 
 `data/orig/` (about 31 MB, 95 files) holds the original-language text. The whole folder must be uploaded for the Original and Word-by-word modes to work.
 Original-language data: STEPBible / Tyndale House Cambridge, CC BY 4.0 (https://github.com/STEPBible/STEPBible-Data).
+
+## v4 additions
+- **"Go deeper" layer** for guided readings: a headline thesis, a multi-paragraph analysis with outside scholarship and cross-testament connections, a "Cross-references worth the trip" list (each reference opens in the reader), extra reflection questions, and one interactive exercise per reading (predict, choose, rate, or rewrite). Responses are saved with the day, appear in the Journal, and count toward XP. Content lives in `content/dd_*.js`; `content/dd.js` merges them. Readings without an entry fall back to the standard guided template.
+- Cross-chapter references (e.g. "Isaiah 44:28–45:1") now link correctly.
+- Fact fixes: 2 Maccabees 12:38-45 range, 2 Esdras 7:48 verse numbering note.
+- Backup import now rejects files that aren't RSTL backups. Service worker cache bumped to `rstl-v4`.
