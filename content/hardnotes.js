@@ -75,5 +75,5 @@ export default [
 ["Wisdom 2:24","Devil’s envy","An early text connecting the Genesis serpent with the devil: ‘through the devil’s envy death entered the world.’ This is from a Jewish text now excluded from Protestant Bibles."],
 ["Sirach 25:24","From woman sin began","An early Jewish reading of Genesis 3 that blames Eve. Compare 1 Timothy 2:14. Paul’s own reading in Romans 5 blames Adam. Tradition chose which of these to emphasise."],
 ["2 Maccabees 7:28","Creation from nothing","Often cited as the earliest explicit statement of creation from nothing — in a book most Protestants removed. A cornerstone doctrine rests partly on an Apocryphal text."],
-["2 Esdras 7:118","O Adam, what have you done?","A Jewish response to the destruction of Jerusalem in 70 CE, written around 100 CE — a generation after Romans. It laments the ‘evil heart’ Adam passed on. Did Paul invent the idea of inherited sinfulness, inherit it, or share it with his contemporaries?"]
+["2 Esdras 7:48","O Adam, what have you done?","(Numbered 7:118 in the NRSV and most modern Bibles; the KJV text used in this app has it at 7:48.) A Jewish response to the destruction of Jerusalem in 70 CE, written around 100 CE — a generation after Romans. It laments the ‘evil heart’ Adam passed on. Did Paul invent the idea of inherited sinfulness, inherit it, or share it with his contemporaries?"]
 ];

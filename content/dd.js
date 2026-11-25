@@ -1,0 +1,31 @@
+// Deep-dive layer for the Guided Readings (one entry per reading, keyed by book index, then by the reading's first chapter).
+// Entry: [first chapter, headline, analysis, [[cross-reference, why]…], [two questions], [exercise]]
+import p_a from './dd_a.js';
+import p_b from './dd_b.js';
+import p_c from './dd_c.js';
+import p_d from './dd_d.js';
+import p_e from './dd_e.js';
+import p_f from './dd_f.js';
+import p_g from './dd_g.js';
+import p_h from './dd_h.js';
+import p_i from './dd_i.js';
+import p_j from './dd_j.js';
+import p_k from './dd_k.js';
+import p_l from './dd_l.js';
+import p_m from './dd_m.js';
+import p_n from './dd_n.js';
+import p_o from './dd_o.js';
+import p_p from './dd_p.js';
+import p_q from './dd_q.js';
+import p_r from './dd_r.js';
+import p_s from './dd_s.js';
+import p_t from './dd_t.js';
+import p_u from './dd_u.js';
+import p_v from './dd_v.js';
+import p_w from './dd_w.js';
+import p_x from './dd_x.js';
+import p_y from './dd_y.js';
+const parts = [p_a, p_b, p_c, p_d, p_e, p_f, p_g, p_h, p_i, p_j, p_k, p_l, p_m, p_n, p_o, p_p, p_q, p_r, p_s, p_t, p_u, p_v, p_w, p_x, p_y];
+const all = {};
+parts.forEach(p => Object.entries(p).forEach(([b, arr]) => { (all[b] ||= []).push(...arr); }));
+export default all;

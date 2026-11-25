@@ -133,7 +133,7 @@ p: `Read John 10:22–30 once in English and once aloud. Note what changes when 
 src: [`Jonathan A. Goldstein, *I Maccabees* (Anchor Bible, 1976)`, `Elias Bickerman, *The God of the Maccabees* (Brill, 1979)`]
 },
 {
-t: `Prayers for the Dead`, k: `2 Maccabees 12 · 1 Corinthians 3 · Purgatory and the canon`, ref: [`2 Maccabees 12:38-46`, `1 Corinthians 3:10-15`],
+t: `Prayers for the Dead`, k: `2 Maccabees 12 · 1 Corinthians 3 · Purgatory and the canon`, ref: [`2 Maccabees 12:38-45`, `1 Corinthians 3:10-15`],
 tag: `Where do the disagreements about the dead between Catholic, Orthodox and Protestant churches come from?`,
 c: [`2 Maccabees 12 is cited as a basis for praying for the dead.`],
 f: [`After a battle, Judas Maccabeus’ men find idol amulets under the tunics of fallen comrades. He collects money and sends it to Jerusalem for a sin offering, “taking into account the resurrection” (12:43), and the writer adds that it is “a holy and pious thought” to pray for the dead “that they might be delivered from their sin” (12:45). It is the main pre-Christian text for praying for the dead, and with 1 Corinthians 3:15 (“he himself will be saved, but only as through fire”) it became a source for the doctrine of purgatory. Protestants who do not accept 2 Maccabees as canonical often do not accept the doctrine either, though canon is only part of it: the Reformers also argued from Hebrews 9:27 and Luke 16. Prayers for the dead are very early in Christian practice, with inscriptions from the second century and discussion in Tertullian (c. 200).`],
