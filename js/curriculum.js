@@ -12,6 +12,7 @@ import BOOKS from '../content/books.js';
 import DEEP from '../content/daily.js';
 import INS from '../content/insight.js';
 import DOS from '../content/dossier.js';
+import DD from '../content/dd.js';
 
 const CAP = 45, CAP_PS = 30, MAX_CH = 4;
 let CACHE = null, CK = '';
@@ -100,7 +101,10 @@ function buildGen(e, idx) {
   const FACETS = [['ctx', 'Historical setting'], ['out', 'How the book is built'], ['ext', 'Outside sources and parallels'], ['dbt', 'A scholarly debate']];
   const fk = FACETS[(e.gi || 0) % FACETS.length];
   const facet = dos && dos[fk[0]] ? { title: fk[1], text: dos[fk[0]] } : null;
+  const ddr = (DD[e.b] || []).find(r => r[0] === e.c1) || null;
+  const dd = ddr ? { h: ddr[1], a: Array.isArray(ddr[2]) ? ddr[2] : [ddr[2]], x: ddr[3] || [], q: ddr[4] || [], i: ddr[5] || null } : null;
   const q = [];
+  if (dd) dd.q.forEach(x => q.push(x));
   ins.forEach(x => { if (x.q) q.push(x.q); });
   q.push(pick(GENRE_Q[genre], idx + e.b));
   if (mins >= 15) q.push(pick(LENS_Q[lens], idx));
@@ -114,7 +118,7 @@ function buildGen(e, idx) {
     t: rangeLabel(e.b, e.c1, e.c2),
     k: `${seasonName(e.sid)} · Lens: ${LENSES[lens][0]}`,
     tag: `${e.verses} verses · about ${mins_read} min to read. ${LENSES[lens][1]}`,
-    tip: GENRE_TIP[genre], guide: BOOKS[e.b], first: e.c1 === 1, hard, ins, facet, src: dos?.src || [],
+    tip: GENRE_TIP[genre], guide: BOOKS[e.b], first: e.c1 === 1, hard, ins, dd, facet, src: dos?.src || [],
     q, s: [pick(STANCE, idx), 'Disagree', 'Agree'], p: pick(PRACTICE, idx * 7 + e.b)
   };
 }

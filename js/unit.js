@@ -11,6 +11,18 @@ import { respondHTML, wireRespond, reactRow, actions as respondActions } from '.
 
 export const SECTION_LABEL = { c: 'The Comfortable Reading', f: 'The Fracture', d: 'The Dig', v: 'Other Voices', b: 'Beneath the Absolute', q: 'Interrogate', s: 'Where Do You Stand?', p: 'Practice' };
 
+const EX_LABEL = { predict: 'Predict, then check', choose: 'Take a side', rewrite: 'Retell it', rate: 'Where do you stand?' };
+const ddHTML = d => `<h4>${esc(d.h)}</h4>${paras(d.a)}${d.x?.length ? `<div class="kicker mt">Cross-references worth the trip</div><ul class="xr">${d.x.map(([r, why]) => `<li>${md(r)}<span> — ${md(why)}</span></li>`).join('')}</ul>` : ''}`;
+function exHTML(i, key, st) {
+  const [type, prompt, a, b] = i, d = st.dd || {}, k = esc(key);
+  const ta = (f, label, ph) => `<label class="flabel" for="dd-${f}">${esc(label)}</label><textarea id="dd-${f}" data-dd="${f}" data-k="${k}" placeholder="${esc(ph)}">${esc(d[f] || '')}</textarea>`;
+  let h = `<p>${md(prompt)}</p>`;
+  if (type === 'predict') h += ta('p1', 'Your prediction', 'Commit to a guess before you look.') + ta('p2', 'After reading: what did you get right, and what surprised you?', 'Come back to this once you have read the passage.');
+  else if (type === 'choose') h += `<div class="opts dd-opts">${[['A', a], ['B', b]].map(([v, t]) => `<button class="opt ${d.c === v ? 'on' : ''}" data-act="ddchoose" data-k="${k}" data-v="${v}"><span><b>${v === 'A' ? 'Reading A' : 'Reading B'}</b><span>${md(t)}</span></span><span class="tick">${ic('check')}</span></button>`).join('')}</div>` + ta('t', 'What would the other side say to you?', 'State the strongest objection to the side you picked.');
+  else if (type === 'rate') h += `<input type="range" min="1" max="5" step="1" value="${d.r || 3}" data-ddrate="${k}" aria-label="Your answer"><div class="stance-lbl"><span>${esc(a)}</span><span>${esc(b)}</span></div>` + ta('t', 'Why there?', 'One honest sentence is enough.');
+  else h += ta('t', 'Your version', 'Write it, then read it back and notice what you added.');
+  return h;
+}
 const href = (p) => `#/read/${p.b}/${p.c}${p.v ? '?v=' + p.v : ''}`;
 const refLink = r => { const p = B.parseRef(r); return p ? `<a class="pill" href="${href(p)}">${esc(r)}</a>` : ''; };
 const load = (msg) => `<div class="loading sm"><div class="spin"></div>${esc(msg)}</div>`;
@@ -42,6 +54,8 @@ export function renderUnit(u, key, kind = 'daily', head = '') {
 
   if (u.gen) {
     const g = u.guide;
+    if (u.dd) h += open('deepen', 'Go deeper', ddHTML(u.dd), true, rx('dd'), 'blk-dd');
+    if (u.dd?.i) h += open('prac exercise', EX_LABEL[u.dd.i[0]] || 'Try this', exHTML(u.dd.i, key, st), true, '', 'blk-ex');
     if (u.ins?.length) h += open('insight', 'Notes on this passage', u.ins.map(x => `<h4>${esc(x.h)}${u.ins.length > 1 ? ` <span class="faint">· ${esc(B.label(u.b, x.c))}</span>` : ''}</h4><p>${md(x.t)}</p>`).join(''), true, rx('ins'));
     if (g) h += open('guide', `About ${esc(g[0])}`, `<p><b>${esc(g[2])}.</b> ${esc(g[1])}</p><p>${md(g[3])}</p><p class="muted"><em>${md(g[4])}</em></p>`, u.first && mins >= 15);
     if (u.facet) h += open('facet', esc(u.facet.title), `<p>${md(u.facet.text)}</p>`, mins >= 15);
@@ -95,6 +109,8 @@ export function renderUnit(u, key, kind = 'daily', head = '') {
       D.wireDepth(key, sc ? sc.verses.slice(0, 45) : []);
     }
     $$('textarea[data-ua]').forEach(t => t.addEventListener('input', debounce(() => { saveAnswer(t.dataset.ua, +t.dataset.i, t.value); }, 400)));
+    $$('textarea[data-dd]').forEach(t => t.addEventListener('input', debounce(() => { const u2 = (S.units[t.dataset.k] ||= {}); (u2.dd ||= {})[t.dataset.dd] = t.value; save(); }, 400)));
+    $$('input[data-ddrate]').forEach(r => r.addEventListener('change', () => { const u2 = (S.units[r.dataset.ddrate] ||= {}); (u2.dd ||= {}).r = +r.value; save(); }));
     $$('input[data-ustance]').forEach(r => r.addEventListener('change', () => { const k = r.dataset.ustance; (S.units[k] ||= {}).s = +r.value; save(); const n = $('#stance-note'); if (n) n.textContent = 'Saved. You can revise this any time. Changing your mind is data, not defeat.'; }));
     wireRespond();
   };
@@ -143,6 +159,11 @@ export const unitActions = {
       box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     } catch (e) { box.innerHTML = '<p class="muted small">Couldn’t load the lexicon.</p>'; }
   },
+  ddchoose(el) {
+    const k = el.dataset.k, v = el.dataset.v, d = ((S.units[k] ||= {}).dd ||= {});
+    d.c = d.c === v ? undefined : v; save();
+    el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === d.c));
+  },
   uwordx() { const box = $('#uword'); if (box) box.innerHTML = ''; },
   unitDone(el) {
     const key = el.dataset.key;
@@ -150,7 +171,8 @@ export const unitActions = {
     const st = (S.units[key] ||= {}); if (st.done) return;
     st.done = true; st.when = Date.now(); st.kind = el.dataset.kind; save();
     const answered = (st.a || []).filter(x => x && x.trim().length > 12).length;
-    const extra = (st.pk?.why?.trim().length > 12 ? 1 : 0) + (st.thread?.t?.trim().length > 12 ? 1 : 0);
+    const ddw = st.dd ? Math.max(...['t', 'p1', 'p2'].map(f => (st.dd[f] || '').trim().length)) : 0;
+    const extra = (st.pk?.why?.trim().length > 12 ? 1 : 0) + (st.thread?.t?.trim().length > 12 ? 1 : 0) + (ddw > 12 ? 1 : 0);
     const base = el.dataset.kind === 'daily' ? 40 : 30;
     addXP(base + Math.min(answered + extra, 5) * 5, el.dataset.kind === 'daily' ? 'daily study' : 'lesson');
     markActive(); checkAch();

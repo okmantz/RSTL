@@ -27,7 +27,7 @@ function buildAliases() {
   };
   Object.entries(extra).forEach(([k, v]) => ALIAS.set(k, v));
   const names = [...ALIAS.keys()].sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ /g, '\\s+'));
-  REF_RE = new RegExp(`\\b((?:${names.join('|')})\\.?)\\s+(\\d{1,3})(?::(\\d{1,3})(?:[–-](\\d{1,3}))?)?`, 'gi');
+  REF_RE = new RegExp(`\\b((?:${names.join('|')})\\.?)\\s+(\\d{1,3})(?::(\\d{1,3})(?:[–-](?:(\\d{1,3}):)?(\\d{1,3}))?)?`, 'gi');
 }
 export const bookIndex = name => ALIAS.get(norm(name));
 export function label(b, c, v, ve) {
@@ -40,22 +40,22 @@ export function label(b, c, v, ve) {
 export function parseRef(s) {
   if (!s) return null;
   s = String(s).trim().replace(/[–—]/g, '-');
-  const m = s.match(/^((?:[1-4]|i{1,3})\s*)?([a-z][a-z .']*?)\.?\s*(?:(\d+)(?::(\d+))?(?:-(\d+))?)?$/i);
+  const m = s.match(/^((?:[1-4]|i{1,3})\s*)?([a-z][a-z .']*?)\.?\s*(?:(\d+)(?::(\d+))?(?:-(?:(\d+):)?(\d+))?)?$/i);
   if (!m) return null;
   const b = ALIAS.get(norm(((m[1] || '') + m[2]).replace(/\s+/g, ' ')));
   if (b === undefined) return null;
-  let c = m[3] ? +m[3] : 1, v = m[4] ? +m[4] : 0, t = m[5] ? +m[5] : 0, c2 = 0, ve = 0;
+  let c = m[3] ? +m[3] : 1, v = m[4] ? +m[4] : 0, t = m[6] ? +m[6] : 0, ce = m[5] ? +m[5] : 0, c2 = 0, ve = 0;
   if (m[4]) ve = t; else if (t) c2 = t;
   if (META[b].v.length === 1 && m[3] && !m[4]) { v = c; c = 1; ve = t; c2 = 0; }
   if (c > META[b].v.length) c = META[b].v.length;
-  return { b, c, v, ve: ve > v ? ve : 0, c2, whole: !m[3] };
+  return { b, c, v, ve: ce || ve > v ? ve : 0, ce: ce > c && ce <= META[b].v.length ? ce : 0, c2, whole: !m[3] };
 }
 /** replace scripture references inside already-escaped text with reader links */
 export function linkRefs(html) {
   if (!REF_RE) return html;
   return html.split(/(<a [^>]*>.*?<\/a>)/gi).map(part => {
     if (part.startsWith('<a ')) return part;
-    return part.replace(REF_RE, (all, name, ch, v, ve) => {
+    return part.replace(REF_RE, (all, name, ch, v) => {
       const b = ALIAS.get(norm(name)); if (b === undefined) return all;
       let c = +ch, vv = v ? +v : 0;
       if (META[b].v.length === 1 && !v) { vv = c; c = 1; }
