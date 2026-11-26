@@ -2,10 +2,11 @@ import { S, levelInfo, streak } from '../store.js';
 import * as B from '../bible.js';
 import { drawArcs } from '../arcs.js';
 import { ctx } from '../ctx.js';
-import { esc, todayISO, $ } from '../util.js';
+import { esc, todayISO, addDays, parseISO, $ } from '../util.js';
 import { checkinCard, checkinActions } from '../checkin.js';
 import { ACH } from '../ach.js';
 import { ic } from '../icons.js';
+import { tile } from '../ui.js';
 import * as C from '../curriculum.js';
 import { TRADS } from '../../content/traditions.js';
 
@@ -20,38 +21,43 @@ export async function view() {
   const openQ = S.myq.filter(q => (q.st || 'open') !== 'done').length;
   const dig = Object.values(S.react).filter(r => r.v === 'dig' || r.v === 'unset' || r.v === 'disg').length;
   const finished = Object.entries(S.units).filter(([k, x]) => k.startsWith('daily:') && x.done).length;
-  const tile = (href, icon, t, p) => `<a class="tile" href="${href}">${ic(icon)}<h3>${t}</h3><p>${p}</p></a>`;
+  const days7 = Array.from({ length: 7 }, (_, i) => { const d = addDays(iso, i - 6); return { d, on: !!S.days[d]?.a, now: d === iso, l: parseISO(d).toLocaleDateString(undefined, { weekday: 'short' }) }; });
+  const activeWeek = days7.filter(x => x.on).length;
   const html = `
   <section class="hero">
     <div class="kicker">${esc(greet())}${S.profile.name ? ', ' + esc(S.profile.name) : ''}</div>
     <h1 class="hello">Read closely. Ask freely. Answer back.</h1>
     <p>Scripture and the texts around it, wired together by cross-references, with a different study every day and room to push on all of it.</p>
-    <div class="row" style="margin-bottom:6px"><a class="btn pri" href="#/daily">${done ? 'Review today’s study' : 'Begin today’s study'}</a><a class="btn" href="${lastHref}">Continue: ${esc(lastLbl)}</a></div>
-    <canvas id="hero-arcs" aria-label="Arcs of cross-references between every chapter of the Bible"></canvas>
+    <div class="row" style="margin-bottom:6px"><a class="btn pri lg" href="#/daily">${done ? 'Review today’s study' : 'Begin today’s study'} ${ic('arrowR')}</a><a class="btn lg" href="${lastHref}">${ic('book')} Continue: ${esc(lastLbl)}</a></div>
+    <canvas id="hero-arcs" aria-label="Arcs of cross-references between every chapter of the Bible. Tap to open the reader."></canvas>
   </section>
   <div class="grid g2 mt">
-    <div class="card glow"><div class="between"><div class="kicker">Today · ${esc(u.k.split(' · ')[0])}</div>${done ? `<span class="tag gold">${ic('check')} Done</span>` : ''}</div><h2 style="margin-top:6px">${esc(u.t)}</h2><p class="muted">${esc(u.deep ? 'Deep dive. ' : 'Guided reading. ') + (u.tag || '').split('. ')[0]}.</p><div class="row"><a class="btn ${done ? '' : 'pri'} sm" href="#/daily">${done ? 'Revisit' : 'Open study'}</a><a class="btn sm ghost" href="#/daily/journey">Your journey</a></div></div>
+    <div class="card glow today"><div class="between"><div class="kicker">Today · ${esc(u.k.split(' · ')[0])}</div>${done ? `<span class="tag gold">${ic('check')} Done</span>` : `<span class="tag">${u.deep ? 'Deep dive' : 'Guided reading'}</span>`}</div><h2>${esc(u.t)}</h2><p class="muted mb0">${esc((u.tag || '').split('. ')[0])}.</p><div class="row"><a class="btn ${done ? '' : 'pri'} sm" href="#/daily">${done ? 'Revisit' : 'Open study'}</a><a class="btn sm ghost" href="#/daily/journey">Your journey</a></div></div>
     ${checkinCard()}
+  </div>
+  <div class="sec-h"><h2>Your progress</h2><a href="#/profile">Profile ${ic('arrowR')}</a></div>
+  <div class="card">
+    <div class="level"><div class="lv" aria-hidden="true">${li.level}</div><div class="lb"><div class="between"><b>${esc(li.title)}</b><span class="small muted">${li.toNext} XP to level ${li.level + 1}</span></div><div class="bar mt" style="margin-top:8px"><i style="width:${li.pct}%"></i></div></div></div>
+    <div class="week" role="img" aria-label="${activeWeek} of the last 7 days active">${days7.map(x => `<div class="d ${x.on ? 'on' : ''} ${x.now ? 'now' : ''}"><i>${x.on ? ic('check') : ''}</i>${esc(x.l)}</div>`).join('')}</div>
   </div>
   <div class="grid g4 mt">
     <div class="stat"><b>${ic('flame')} ${st}</b><span>day streak</span></div>
     <div class="stat"><b>${finished}</b><span>of ${C.length()} studies finished</span></div>
     <div class="stat"><b>${Object.keys(S.read).length}</b><span>chapters read</span></div>
-    <div class="stat"><b>${S.xp}</b><span>XP · level ${li.level}</span></div>
+    <div class="stat"><b>${S.xp}</b><span>total XP</span></div>
   </div>
-  <div class="card mt"><div class="between"><b>${esc(li.title)}</b><span class="small muted">${li.toNext} XP to level ${li.level + 1}</span></div><div class="bar mt"><i style="width:${li.pct}%"></i></div></div>
-  ${(openQ || dig) ? `<a class="card mt" style="display:block" href="#/journal?t=${openQ ? 'q' : 'dig'}"><div class="kicker">Left open</div><p class="mb0">${openQ ? `${openQ} of your own question${openQ > 1 ? 's' : ''} still open` : ''}${openQ && dig ? ' · ' : ''}${dig ? `${dig} section${dig > 1 ? 's' : ''} marked to dig into` : ''}. <span class="faint">Open the journal ${ic('arrowR')}</span></p></a>` : ''}
+  ${(openQ || dig) ? `<a class="card mt link-card" href="#/journal?t=${openQ ? 'q' : 'dig'}"><span class="tile-ic">${ic('journal')}</span><div class="lc-b"><div class="kicker">Left open</div><b>${openQ ? `${openQ} of your own question${openQ > 1 ? 's' : ''} still open` : ''}${openQ && dig ? ' · ' : ''}${dig ? `${dig} section${dig > 1 ? 's' : ''} marked to dig into` : ''}</b></div><span class="tile-go">${ic('chevron')}</span></a>` : ''}
   <div class="sec-h"><h2>Where to dig</h2></div>
   <div class="grid g3">
     ${tile('#/study/tracks', 'compass', 'Study Tracks', 'Multi-lesson courses: canon, God on trial, the Trinity, Jesus, faith, ethics and more.')}
-    ${tile('#/study/resources', 'globe', 'Explore More Texts', 'Apocrypha, canon history, the Fathers, other scriptures, literature.')}
-    ${tile('#/study/lab', 'scale', 'Argument Lab', 'Test the great arguments premise by premise. See where you break.')}
-    ${tile('#/study/questions', 'flame', 'Big Questions', 'Positions, pressure points and the passages that will not cooperate.')}
-    ${tile('#/study/beliefs', 'map', 'Belief Map', 'Chart what you hold. Return in a month and see what moved.')}
+    ${tile('#/study/resources', 'globe', 'Explore More Texts', 'Apocrypha, canon history, the Fathers, other scriptures, literature.', 'blue')}
+    ${tile('#/study/lab', 'scale', 'Argument Lab', 'Test the great arguments premise by premise. See where you break.', 'violet')}
+    ${tile('#/study/questions', 'flame', 'Big Questions', 'Positions, pressure points and the passages that will not cooperate.', 'bad')}
+    ${tile('#/study/beliefs', 'map', 'Belief Map', 'Chart what you hold. Return in a month and see what moved.', 'good')}
     ${tile('#/journal', 'journal', 'Journal', 'Everything you have written and asked, and replies to your past self.')}
   </div>
   <p class="small muted mt">${esc(trad.hello)}</p>
-  ${recent.length ? `<div class="sec-h"><h2>Recent achievements</h2><a href="#/profile">All →</a></div><div class="grid g2">${recent.map(a => `<div class="ach"><div class="ai">${ic(a.i)}</div><div><h4>${esc(a.n)}</h4><p>${esc(a.d)}</p></div></div>`).join('')}</div>` : ''}`;
+  ${recent.length ? `<div class="sec-h"><h2>Recent achievements</h2><a href="#/profile">All ${ic('arrowR')}</a></div><div class="grid g2">${recent.map(a => `<div class="ach"><div class="ai">${ic(a.i)}</div><div><h4>${esc(a.n)}</h4><p>${esc(a.d)}</p></div></div>`).join('')}</div>` : ''}`;
   const after = async () => {
     const c = $('#hero-arcs'); if (!c) return;
     try {

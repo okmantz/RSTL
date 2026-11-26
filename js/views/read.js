@@ -4,7 +4,7 @@ import * as B from '../bible.js';
 import { drawArcs, wireArcs } from '../arcs.js';
 import { ctx } from '../ctx.js';
 import { esc, $, $$, bookColor, debounce } from '../util.js';
-import { toast, md, loading } from '../ui.js';
+import { toast, md, loading, pageHead } from '../ui.js';
 import { checkAch } from '../ach.js';
 import HARD from '../../content/hardnotes.js';
 import BOOKS from '../../content/books.js';
@@ -26,14 +26,14 @@ const SEC = ['Torah', 'History', 'Wisdom & Poetry', 'Prophets'];
 export async function libView() {
   const read = {}; Object.keys(S.read).forEach(k => { const b = +k.split('.')[0]; read[b] = (read[b] || 0) + 1; });
   const card = m => `<a class="bk" style="--c:${bookColor(m.i)}" href="#/read/${m.i}"><b>${esc(m.n)}</b><small>${m.v.length} ch${read[m.i] ? ' · ' + read[m.i] + ' read' : ''}</small><i style="width:${Math.round(((read[m.i] || 0) / m.v.length) * 100)}%"></i></a>`;
-  const grp = (t, a, z) => `<div class="sec-h"><h2>${t}</h2></div><div class="bookgrid">${B.META.slice(a, z).map(card).join('')}</div>`;
+  const grp = (t, a, z, g) => `<section class="lib-sec" data-g="${g}"><div class="sec-h" style="margin-top:0"><h2>${t}</h2><span class="tiny faint">${z - a} books</span></div><div class="bookgrid">${B.META.slice(a, z).map(card).join('')}</div></section>`;
   const last = S.last;
-  const html = `<div class="between"><h1 style="margin:0">Read</h1><a class="btn sm" href="#/search">${'Search the text'}</a></div>
-  <form id="goto" class="row mt"><input type="search" id="goto-q" placeholder="Go to… (e.g. John 3:16, Ps 88, 1 Cor 15)" aria-label="Go to reference" style="flex:1;min-width:200px"><button class="btn pri">Go</button></form>
-  ${last ? `<a class="card mt glow" href="#/read/${last.b}/${last.c}" style="display:block"><div class="kicker">Continue</div><b style="font-family:var(--serif);font-size:1.2rem">${esc(B.label(last.b, last.c))}</b></a>` : ''}
-  <div class="rainbow-rule mt"></div>
-  ${grp('Old Testament', 0, 39)}${grp('New Testament', 39, 66)}${grp('Apocrypha / Deuterocanon <span class="tag">KJV</span>', 66, 80)}
-  <p class="small faint mt2">Translations: Berean Standard Bible, King James Version (with Apocrypha), American Standard Version — all public domain. Cross-references: OpenBible.info (CC-BY).</p>`;
+  const html = `${pageHead({ kicker: 'The reader', title: 'Read', sub: 'Every chapter links to the rest of Scripture. Tap any verse for its connections, original-language words, notes and more.' })}
+  <div class="card"><form id="goto" class="lib-find"><input type="search" id="goto-q" placeholder="Jump to… (e.g. John 3:16, Ps 88, 1 Cor 15)" aria-label="Go to reference"><button class="btn pri">Go ${ic('arrowR')}</button><a class="btn" href="#/search">${ic('search')} Search the text</a></form>
+  ${last ? `<a class="link-card" href="#/read/${last.b}/${last.c}" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)"><span class="tile-ic">${ic('book')}</span><div class="lc-b"><div class="kicker">Continue where you left off</div><b>${esc(B.label(last.b, last.c))}</b></div><span class="tile-go">${ic('chevron')}</span></a>` : ''}</div>
+  <div class="bg-tools" style="margin-top:22px"><div class="seg" role="tablist" aria-label="Filter books">${[['all', 'All books'], ['ot', 'Old Testament'], ['nt', 'New Testament'], ['ap', 'Apocrypha']].map(([id, n], i) => `<button role="tab" class="${i === 0 ? 'on' : ''}" aria-selected="${i === 0}" data-act="libf" data-g="${id}">${n}</button>`).join('')}</div></div>
+  ${grp('Old Testament', 0, 39, 'ot')}${grp('New Testament', 39, 66, 'nt')}${grp('Apocrypha / Deuterocanon <span class="tag">KJV</span>', 66, 80, 'ap')}
+  <p class="small faint mt2">Translations: Berean Standard Bible, King James Version (with Apocrypha), American Standard Version, all public domain. Cross-references: OpenBible.info (CC-BY).</p>`;
   const after = () => {
     $('#goto').addEventListener('submit', e => { e.preventDefault(); const p = B.parseRef($('#goto-q').value); if (p) location.hash = `#/read/${p.b}/${p.c}${p.v ? '?v=' + p.v : ''}`; else toast('Couldn’t read that reference — try “John 3:16”.'); });
   };
@@ -43,7 +43,7 @@ export async function bookView({ p1 }) {
   const b = +p1; const m = B.META[b]; if (!m) return { html: '<p>Unknown book.</p>' };
   const read = Object.keys(S.read).filter(k => k.startsWith(b + '.'));
   const g = BOOKS[b];
-  const html = `<div class="narrow"><a href="#/read" class="small">← All books</a><h1 style="margin-top:8px">${esc(m.n)}</h1>
+  const html = `<div class="narrow"><a href="#/read" class="back">All books</a><h1 style="margin-top:8px">${esc(m.n)}</h1>
   <div class="bar thin"><i style="width:${Math.round(read.length / m.v.length * 100)}%"></i></div><p class="small muted">${read.length} of ${m.v.length} chapters read</p>
   ${g ? `<div class="card mt"><div class="kicker">Book guide</div><p class="small muted" style="margin-bottom:8px"><b>When & who:</b> ${md(g[1])}</p><p class="small muted" style="margin-bottom:8px"><b>Genre:</b> ${esc(g[2])}</p><p style="font-family:var(--serif)">${md(g[3])}</p><p class="small"><b class="kicker" style="display:block;margin-bottom:2px">The hard question</b>${md(g[4])}</p></div>` : ''}
   <div class="chgrid mt" style="--c:${bookColor(b)}">${m.v.map((_, i) => `<a class="ch ${S.read[b + '.' + (i + 1)] ? 'r' : ''}" href="#/read/${b}/${i + 1}">${i + 1}</a>`).join('')}</div></div>`;
@@ -74,7 +74,8 @@ export async function view({ p1, p2, q }) {
   const prev = c > 1 ? `#/read/${b}/${c - 1}` : b > 0 ? `#/read/${b - 1}/${B.META[b - 1].v.length}` : null;
   const next = c < m.v.length ? `#/read/${b}/${c + 1}` : b < 79 ? `#/read/${b + 1}/1` : null;
   const isRead = !!S.read[`${b}.${c}`];
-  const html = `
+  const sectionOf = bi => bi >= 66 ? 'Apocrypha' : bi >= 39 ? 'New Testament' : 'Old Testament';
+  const html = `<div class="reader">
   <div class="reader-top">
     <div class="rt-row">
       <a class="btn sm ghost" href="#/read/${b}">${esc(m.n)} ${ic('chevron')}</a>
@@ -86,14 +87,14 @@ export async function view({ p1, p2, q }) {
     </div>
     ${canO && ws ? `<div class="seg full" role="tablist" aria-label="Text view">${MODES.map(([id, n]) => `<button role="tab" aria-selected="${mode === id}" class="${mode === id ? 'on' : ''}" data-act="rmode" data-m="${id}">${id === 'orig' ? O.langOf(b) : n}</button>`).join('')}</div>` : ''}
   </div>
-  <h1 class="reader-title">${esc(m.n)} ${m.v.length > 1 ? c : ''}</h1>
-  <p class="small faint">${esc(B.TRANS[trans].name)}${trans !== pref ? ' — the Apocrypha is only available in the KJV' : ''} · tap any verse for its connections${mode !== 'eng' ? ` · tap a ${O.langOf(b)} word for its meaning` : ''}</p>
+  <div class="reader-head"><div><div class="kicker">${sectionOf(b)}${m.v.length > 1 ? ' · chapter ' + c : ''}</div><h1 class="reader-title">${esc(m.n)} ${m.v.length > 1 ? c : ''}</h1></div><div class="reader-nav">${prev ? `<a class="icon-btn" href="${prev}" data-nav="prev" aria-label="Previous chapter" title="Previous chapter (←)">${ic('arrowL')}</a>` : `<span class="icon-btn off">${ic('arrowL')}</span>`}${next ? `<a class="icon-btn" href="${next}" data-nav="next" aria-label="Next chapter" title="Next chapter (→)">${ic('arrowR')}</a>` : `<span class="icon-btn off">${ic('arrowR')}</span>`}</div></div>
+  <p class="small faint reader-meta">${esc(B.TRANS[trans].name)}${trans !== pref ? ' — the Apocrypha is only available in the KJV' : ''} · tap any verse for its connections${mode !== 'eng' ? ` · tap a ${O.langOf(b)} word for its meaning` : ''}</p>
   ${mode !== 'eng' ? `<p class="tiny faint orig-credit">${O.isNT(b) ? 'Greek: STEPBible TAGNT (Tyndale House), the modern critical text with Textus Receptus variants marked' : 'Hebrew: STEPBible TAHOT (Tyndale House), the Leningrad Codex'} · CC BY 4.0. Verse numbering follows the English text.${mode === 'inter' ? ' Faint words have no English counterpart; italic words are supplied in English.' : ''}</p>` : ''}
   ${b < 66 ? `<div class="arcwrap"><canvas id="arcs" aria-label="Rainbow cross-reference arcs for this chapter"></canvas><div class="cap"><span id="arc-cap">Every arc is a cross-reference from this chapter. Tap one to jump.</span><span class="nw">Genesis ⟶ Revelation</span></div></div>` : `<div class="callout mt">Cross-reference data covers the 66 canonical books. Apocrypha chapters can still be read, highlighted and annotated.</div>`}
   <div class="scripture mt${mode !== 'eng' ? ' orig-on orig-' + mode : ''}" id="verses">${vHTML}</div>
-  <div class="between mt2"><div class="row">${prev ? `<a class="btn" href="${prev}">← Previous</a>` : ''}</div><button class="btn ${isRead ? '' : 'pri'}" id="mark" data-act="markRead">${isRead ? ic('check') + ' Read' : 'Mark chapter read'}</button><div class="row">${next ? `<a class="btn" href="${next}">Next →</a>` : ''}</div></div>
+  <div class="reader-foot"><div>${prev ? `<a class="btn" href="${prev}">${ic('arrowL')} Previous</a>` : ''}</div><div><button class="btn ${isRead ? '' : 'pri'}" id="mark" data-act="markRead">${isRead ? ic('check') + ' Read' : ic('check') + ' Mark chapter read'}</button></div><div>${next ? `<a class="btn" href="${next}">Next ${ic('arrowR')}</a>` : ''}</div></div>
   <div id="sentinel" style="height:1px"></div>
-  <div class="sheet" id="sheet" role="dialog" aria-label="Verse tools"><div class="sheet-grip"></div><div class="sheet-h"><h3 id="sh-title">Verse</h3><button class="icon-btn" data-act="closeSheet" aria-label="Close">${ic('x')}</button></div><div class="sheet-tabs" id="sh-tabs"></div><div class="sheet-b" id="sh-body"></div></div>`;
+  <div class="sheet" id="sheet" role="dialog" aria-label="Verse tools"><div class="sheet-grip"></div><div class="sheet-h"><h3 id="sh-title">Verse</h3><button class="icon-btn" data-act="closeSheet" aria-label="Close">${ic('x')}</button></div><div class="sheet-tabs" id="sh-tabs"></div><div class="sheet-b" id="sh-body"></div></div></div>`;
   const after = () => {
     ctx.cleanup.push(() => document.body.classList.remove('sheet-open'));
     $('#chsel').addEventListener('change', e => { location.hash = `#/read/${b}/${e.target.value}`; });
@@ -208,6 +209,11 @@ function refreshBadge(v) {
   p.className = p.className.replace(/\bhl-\w+/g, '').replace(/\s+/g, ' ').trim() + (S.hl[k] ? ' hl-' + S.hl[k] : '');
 }
 export const actions = {
+  libf(el) {
+    const g = el.dataset.g;
+    $$('[data-act=libf]').forEach(b => { const on = b === el; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    $$('.lib-sec').forEach(sec => { sec.hidden = !(g === 'all' || sec.dataset.g === g); });
+  },
   selVerse(el, e) { if (e.target.closest('a')) return; selectVerse(+el.dataset.v); },
   rmode(el) { S.profile.rmode = el.dataset.m; save(); const v = cur?.sel; history.replaceState(null, '', `#/read/${cur.b}/${cur.c}${v ? '?v=' + v : ''}`); window.dispatchEvent(new Event('app:rerender')); },
   ow(el, e) {

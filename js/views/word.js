@@ -11,11 +11,11 @@ export async function view({ p1 }) {
   const pad = /^[HG]\d{1,4}$/.test(id) ? id[0] + id.slice(1).padStart(4, '0') : id;
   const id2 = lex[id] ? id : Object.keys(lex).find(k => k === pad || k.startsWith(pad));
   const row = id2 && lex[id2];
-  if (!row) return { html: `<div class="narrow"><a href="#/read" class="small">← Read</a><h1>Word not found</h1><p class="muted">No dictionary entry for “${esc(id)}”.</p></div>` };
+  if (!row) return { html: `<div class="narrow"><a href="#/read" class="back">Read</a><h1>Word not found</h1><p class="muted">No dictionary entry for “${esc(id)}”.</p></div>` };
   const lang = nt ? 'grc' : 'he', dir = nt ? 'ltr' : 'rtl', cur = O.curated(id2), refs = row[6] || [];
   const tr = S.profile.trans;
   const items = await Promise.all(refs.map(async r => { const p = O.refOf(r); const t = await B.snippet(tr, { b: p.b, c: p.c, v: p.v, ve: 0 }, 200); return `<a class="xcard" href="${O.refHref(r)}"><div class="r"><span>${esc(O.refLabel(r))}</span></div><div class="t">${esc(t)}</div></a>`; }));
-  const html = `<div class="narrow word-page"><a href="#/read" class="small">← Read</a>
+  const html = `<div class="narrow word-page"><a href="#/read" class="back">Read</a>
   <div class="wc-top mt"><div class="wc-o big" dir="${dir}" lang="${lang}">${esc(row[0])}</div><div class="wc-m"><div class="wc-t">${esc(row[1])}</div><div class="wc-g"><b>${esc(row[2])}</b></div></div></div>
   <div class="row mt" style="gap:6px"><span class="tag">${esc(O.simple(id2))}</span><span class="tag">${nt ? 'Greek' : 'Hebrew/Aramaic'}</span><span class="tag">${row[4].toLocaleString()}× in the ${nt ? 'Greek New Testament' : 'Hebrew Bible'}</span></div>
   ${row[3] ? `<p class="mt">${esc(O.cleanDef(row[3], 400))}</p>` : ''}

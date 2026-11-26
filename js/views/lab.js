@@ -19,7 +19,7 @@ export async function view({ p1 }) {
   if (p1) {
     const a = labs.find(x => x.id === p1); if (!a) return { html: '<p>Not found.</p>' };
     const st = S.args[a.id] || {};
-    const html = `<div class="narrow"><a class="small" href="#/study/lab">← Argument Lab</a><div class="kicker mt">${esc(a.src)}</div><h1>${esc(a.t)}</h1><p class="muted">${md(a.intro)}</p>
+    const html = `<div class="narrow"><a class="back" href="#/study/lab">Argument Lab</a><div class="kicker mt">${esc(a.src)}</div><h1>${esc(a.t)}</h1><p class="muted">${md(a.intro)}</p>
     <div class="card" id="premises">${a.prem.map(([t, note], i) => `<div class="prem"><div class="pn">${i + 1}</div><div><p>${md(t)}</p>${note ? `<p class="note">${md(note)}</p>` : ''}<div class="tri">${[1, 2, 3].map(v => `<button class="${(st.p || [])[i] === v ? 'on' : ''}" data-val="${v}" data-act="prem" data-id="${a.id}" data-i="${i}" data-v="${v}">${NAMES[v]}</button>`).join('')}</div></div></div>`).join('')}
     <div class="prem" style="grid-template-columns:34px 1fr"><div class="pn">∴</div><div><p><b>${md(a.concl)}</b></p></div></div></div>
     <div id="verdict">${verdict({ prem: a.prem, valid: a.valid }, st)}</div>
@@ -29,7 +29,7 @@ export async function view({ p1 }) {
     ${a.src2 ? `<details class="blk"><summary>Read further</summary><div class="in"><ul class="src">${a.src2.map(s => `<li>${md(s)}</li>`).join('')}</ul></div></details>` : ''}</div>`;
     return { html, after: () => wireRespond() };
   }
-  const html = `<a class="small" href="#/study">← Study</a><h1 style="margin-top:6px">Argument Lab</h1><p class="muted narrow" style="margin-left:0">Philosophy’s oldest move: grant nothing for free. For each argument, mark every premise <b>Accept</b>, <b>Unsure</b> or <b>Reject</b>. The Lab shows where the argument breaks <em>for you</em> — and what defenders and critics say about that exact joint.</p>
+  const html = `<a class="back" href="#/study">Study</a><h1 style="margin-top:6px">Argument Lab</h1><p class="muted narrow" style="margin-left:0">Philosophy’s oldest move: grant nothing for free. For each argument, mark every premise <b>Accept</b>, <b>Unsure</b> or <b>Reject</b>. The Lab shows where the argument breaks <em>for you</em> — and what defenders and critics say about that exact joint.</p>
   <div class="list mt">${labs.map(a => { const st = S.args[a.id] || {}; return `<a class="item ${st.tested ? 'done' : ''}" href="#/study/lab/${a.id}"><span class="n">${st.tested ? ic('check') : ic('scale')}</span><div><h3>${esc(a.t)}</h3><p>${esc(a.src)} · ${a.prem.length} premises</p></div></a>`; }).join('')}</div>`;
   return { html };
 }

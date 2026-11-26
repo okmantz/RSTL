@@ -23,8 +23,9 @@ const nav = (canNext = true, last = false) => `<div class="between mt2">${step >
 export async function view({ q }) {
   if (!D || q.redo) { init(); if (q.redo) history.replaceState(null, '', '#/welcome'); }
   let h = '';
-  if (step === 0) h = `<div class="kicker">Welcome to RSTL</div><h1>Rethinking Spiritual Truth &amp; Literature</h1><p class="muted">A place to read Scripture and the texts around it closely, and to question, challenge and respond as you go. Five short questions set your starting point. None is a test, and you can change every answer later.</p>
-    <h3 style="margin-top:26px">Where are you starting from?</h3><div class="opts">${TRAD_ORDER.map(t => opt(D.trad === t, 'wizTrad', `data-v="${t}"`, TRADS[t].n, SUB[t])).join('')}</div>
+  if (step === 0) h = `<svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 22A12 12 0 0 1 28 22"/><path d="M9 22A7 7 0 0 1 23 22" opacity=".7"/><path d="M14 22A2 2 0 0 1 18 22" opacity=".5"/><path d="M4 27H28"/></g></svg><div class="kicker">Welcome to RSTL</div><h1>Rethinking Spiritual Truth &amp; Literature</h1><p class="muted">A place to read Scripture and the texts around it closely, and to question, challenge and respond as you go. Five short questions set your starting point. None is a test, and you can change every answer later.</p>
+    <div class="feats"><div class="feat">${ic('shield')} Private: everything stays on your device. No account, no tracking.</div><div class="feat">${ic('sliders')} Adjustable: change any answer later from your profile.</div><div class="feat">${ic('users')} For everyone: believer, sceptic or somewhere between.</div></div>
+    <h3 style="margin-top:30px">Where are you starting from?</h3><div class="opts">${TRAD_ORDER.map(t => opt(D.trad === t, 'wizTrad', `data-v="${t}"`, TRADS[t].n, SUB[t])).join('')}</div>
     ${D.trad === 'other' ? `<label class="flabel" for="wiz-other">In your own words (optional)</label><input type="text" id="wiz-other" maxlength="80" placeholder="e.g. Buddhist, Hindu, humanist, still working it out" value="${esc(D.tradOther)}">` : ''}${nav(!!D.trad)}`;
   if (step === 1) h = `<h1>What brings you here?</h1><p class="muted">Pick up to three.</p><div class="opts">${Object.entries(GOALS).map(([k, v]) => opt(D.goals.includes(k), 'wizGoal', `data-v="${k}"`, v, '')).join('')}</div>${nav(D.goals.length > 0)}`;
   if (step === 2) h = `<h1>How should the studies treat you?</h1><p class="muted">This sets how much of the hard material is open when you start.</p><div class="opts">${Object.entries(TONES).map(([k, v]) => opt(D.tone === k, 'wizTone', `data-v="${k}"`, v[0], v[1])).join('')}</div>${nav()}`;
@@ -43,7 +44,7 @@ export async function view({ q }) {
     ${tr.length ? `<div class="card mt"><div class="kicker">Suggested tracks</div>${tr.map(x => `<div class="jr-row"><span>${esc(x.title)}</span><span class="faint">${x.lessons.length} lessons</span></div>`).join('')}</div>` : ''}
     <p class="small muted mt">Everything is on this device. Nothing is sent anywhere. You can retake this from your profile.</p>${nav(true, true)}`;
   }
-  const html = `<div class="wiz">${prog()}${h}</div>`;
+  const html = `<div class="wiz">${prog()}<div class="step">${step < N ? 'Step ' + (step + 1) + ' of ' + N : 'All set'}</div>${h}</div>`;
   const after = () => { const n = $('#wiz-name'); if (n) n.addEventListener('input', () => { D.name = n.value; }); const o = $('#wiz-other'); if (o) { o.addEventListener('input', () => { D.tradOther = o.value; }); } };
   return { html, after, title: 'Welcome' };
 }

@@ -40,3 +40,12 @@ Original-language data: STEPBible / Tyndale House Cambridge, CC BY 4.0 (https://
 
 ## v5 additions
 - **Reader controls never clip.** The reader toolbar is now three tidy rows (book + chapter, translation + text size, text view), and the text-view switch, verse-panel tabs and all other segmented controls wrap onto a second line instead of hiding options off-screen on narrow phones. Service worker cache bumped to `rstl-v5`.
+
+## v6 additions: interface redesign
+- **New design system** (`css/app.css`): refined dark, light and sepia themes, consistent spacing, radii, elevation, focus rings, custom sliders and selects, WCAG-friendlier muted text colours.
+- **New app shell**: icon navigation, one-tap theme switcher, profile chip with level and streak, bottom tab bar with active indicator on phones, reading-progress line, back-to-top button, skip link, page transitions.
+- **Keyboard shortcuts**: `/` opens search, `←` / `→` move between chapters or days, `Esc` closes the verse panel.
+- **Home dashboard**: today's study, check-in, level, 7-day activity strip, stats, continue and "left open" cards, colour-tinted navigation tiles.
+- **Reader**: tidy toolbar card, chapter header with previous/next buttons, comfortable reading width, Old / New / Apocrypha filter on the book list.
+- **Study hub** grouped into Courses, Test your thinking, and Other voices; consistent back links and page headers; onboarding with step count; profile settings as clear rows with a visual theme picker.
+- Service worker cache bumped to `rstl-v6`.

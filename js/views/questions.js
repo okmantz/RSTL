@@ -13,7 +13,7 @@ export async function view({ p1 }) {
     const q = qs.find(x => x.id === p1); if (!q) return { html: '<p>Not found.</p>' };
     const st = S.qs[q.id] || {};
     const i = qs.indexOf(q);
-    const html = `<div class="narrow"><a class="small" href="#/study/questions">← Big Questions</a><div class="kicker mt">Big Question ${i + 1} of ${qs.length}</div><h1>${esc(q.q)}</h1>
+    const html = `<div class="narrow"><a class="back" href="#/study/questions">Big Questions</a><div class="kicker mt">Big Question ${i + 1} of ${qs.length}</div><h1>${esc(q.q)}</h1>
     <div class="card"><div class="kicker">Why it matters</div><p class="mb0" style="font-family:var(--serif)">${md(q.why)}</p></div>
     <div class="sec-h"><h2>The serious positions</h2></div>
     ${q.pos.map(([n, c, w], k) => `<div class="pos"><h4>${esc(n)}</h4><p>${md(c)}</p>${w ? `<p class="tiny faint mt mb0">${md(w)}</p>` : ''}</div>`).join('')}
@@ -26,7 +26,7 @@ export async function view({ p1 }) {
     const after = () => { wireRespond(); const t = $('#qnote'); t.addEventListener('input', debounce(() => { (S.qs[t.dataset.id] ||= {}).n = t.value; save(); }, 400)); };
     return { html, after };
   }
-  const html = `<a class="small" href="#/study">← Study</a><h1 style="margin-top:6px">Big Questions</h1><p class="muted narrow" style="margin-left:0">Each question lays out the best case for every serious position — including ones you’ll dislike — then shows where the text itself pushes back. You choose; the app keeps score of nothing except your honesty.</p>
+  const html = `<a class="back" href="#/study">Study</a><h1 style="margin-top:6px">Big Questions</h1><p class="muted narrow" style="margin-left:0">Each question lays out the best case for every serious position — including ones you’ll dislike — then shows where the text itself pushes back. You choose; the app keeps score of nothing except your honesty.</p>
   <div class="list mt">${qs.map((q, i) => `<a class="item ${S.qs[q.id]?.s ? 'done' : ''}" href="#/study/question/${q.id}"><span class="n">${S.qs[q.id]?.s ? ic('check') : i + 1}</span><div><h3>${esc(q.q)}</h3><p>${q.pos.length} positions</p></div></a>`).join('')}</div>`;
   return { html };
 }

@@ -5,20 +5,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>RSTL · Rethinking Spiritual Truth &amp; Literature</title>
 <meta name="description" content="RSTL: read Scripture and the texts around it with cross-references, a different daily study for three years, and room to question, challenge and respond.">
-<meta name="theme-color" content="#0c0d10">
+<meta name="theme-color" content="#0b0c0f">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
+<div class="scroll-prog" id="prog" aria-hidden="true"></div>
+<button class="skip" id="skip" type="button">Skip to content</button>
 <header class="top"><div class="top-in">
   <a class="brand" href="#/" aria-label="RSTL, Rethinking Spiritual Truth and Literature, home"><svg class="mk" viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 22A12 12 0 0 1 28 22"/><path d="M9 22A7 7 0 0 1 23 22" opacity=".7"/><path d="M14 22A2 2 0 0 1 18 22" opacity=".5"/><path d="M4 27H28"/></g></svg><span><b>RSTL</b><small>Rethinking Spiritual Truth &amp; Literature</small></span></a>
   <nav class="dnav" id="dnav" aria-label="Main"></nav>
-  <div class="top-r"><span class="chip-xp" id="xp-chip" aria-live="polite"></span><a class="icon-btn" id="search-btn" href="#/search" aria-label="Search the Bible"></a></div>
+  <div class="top-r"><a class="icon-btn" id="search-btn" href="#/search" aria-label="Search the Bible" title="Search (press /)"></a><button class="icon-btn" id="theme-btn" type="button" aria-label="Change theme"></button><span class="chip-xp" id="xp-chip"></span></div>
 </div></header>
 <main id="main" tabindex="-1"><noscript>RSTL needs JavaScript.</noscript></main>
 <nav class="bnav" id="bnav" aria-label="Main"></nav>
+<button class="totop" id="totop" type="button" aria-label="Back to top"></button>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
