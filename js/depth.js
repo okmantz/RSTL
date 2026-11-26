@@ -19,6 +19,7 @@ let VERSES = [];
 /* ---------- scope: which verses does this study cover? ---------- */
 export function scopeOf(u) {
   const segs = [];
+  if (u.gen && u.seg) return u.seg;                      // close readings carry their own verse range
   if (u.gen) { for (let c = u.c1; c <= u.c2; c++) segs.push({ b: u.b, c, v1: 1, v2: 999 }); return segs; }
   for (const r of (u.ref || []).slice(0, 3)) {
     const p = B.parseRef(r); if (!p) continue;

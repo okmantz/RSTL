@@ -12,7 +12,7 @@ import { respondHTML, wireRespond, reactRow, actions as respondActions } from '.
 export const SECTION_LABEL = { c: 'The Comfortable Reading', f: 'The Fracture', d: 'The Dig', v: 'Other Voices', b: 'Beneath the Absolute', q: 'Interrogate', s: 'Where Do You Stand?', p: 'Practice' };
 
 const EX_LABEL = { predict: 'Predict, then check', choose: 'Take a side', rewrite: 'Retell it', rate: 'Where do you stand?' };
-const ddHTML = d => `<h4>${esc(d.h)}</h4>${paras(d.a)}${d.x?.length ? `<div class="kicker mt">Cross-references worth the trip</div><ul class="xr">${d.x.map(([r, why]) => `<li>${md(r)}<span> — ${md(why)}</span></li>`).join('')}</ul>` : ''}`;
+const ddHTML = d => `${d.h ? `<h4>${esc(d.h)}</h4>` : ''}${paras(d.a)}${d.x?.length ? `<div class="kicker mt">Cross-references worth the trip</div><ul class="xr">${d.x.map(([r, why]) => `<li>${md(r)}<span> — ${md(why)}</span></li>`).join('')}</ul>` : ''}`;
 function exHTML(i, key, st) {
   const [type, prompt, a, b] = i, d = st.dd || {}, k = esc(key);
   const ta = (f, label, ph) => `<label class="flabel" for="dd-${f}">${esc(label)}</label><textarea id="dd-${f}" data-dd="${f}" data-k="${k}" placeholder="${esc(ph)}">${esc(d[f] || '')}</textarea>`;
@@ -28,18 +28,23 @@ const refLink = r => { const p = B.parseRef(r); return p ? `<a class="pill" href
 const load = (msg) => `<div class="loading sm"><div class="spin"></div>${esc(msg)}</div>`;
 const modeOf = () => (['eng', 'orig', 'inter'].includes(S.profile.rmode) ? S.profile.rmode : S.profile.rmode === 'par' ? 'inter' : 'eng');
 
+/* Daily studies open with only The Text showing; every other section starts collapsed.
+   Sections the reader opens (or closes) are remembered while the same study re-renders (theme change, translation switch). */
+let OPEN = { key: '', st: {} };
 /** u: unit object. key: storage key. kind: 'daily'|'lesson'. Returns {html, after} */
 export function renderUnit(u, key, kind = 'daily', head = '') {
+  if (OPEN.key !== key) OPEN = { key, st: {} };
   const st = S.units[key] || {};
   const P = S.profile, mins = +P.mins || 15, gentle = P.tone === 'gentle', hideAuthor = !!P.hideAuthor;
   const refs = u.ref || [];
   const ans = st.a || [];
   const deepen = kind === 'daily';                       // the depth engine runs on daily studies
   const hasText = !!(refs.length || u.gen);
-  const open = (cls, title, inner, o = true, react = '', id = '') => `<details class="blk ${cls}" ${id ? `id="${id}"` : ''} ${o ? 'open' : ''}><summary>${title}</summary><div class="in">${inner}${react}</div></details>`;
+  const collapse = kind === 'daily';                      // daily studies: only The Text starts open
+  const open = (cls, title, inner, o = true, react = '', id = '') => `<details class="blk ${cls}" ${id ? `id="${id}"` : ''} ${(collapse ? id === 'blk-text' : o) ? 'open' : ''}><summary>${title}</summary><div class="in">${inner}${react}</div></details>`;
   const rx = sec => reactRow(key, sec, u.t);
   const chips = u.gen
-    ? `<a class="pill" href="#/read/${u.b}/${u.c1}">${ic('book')} Open in the reader</a>${O.hasOrig(u.b) ? `<a class="pill" href="#/read/${u.b}/${u.c1}?m=inter">${ic('eye')} ${O.langOf(u.b)} text</a>` : ''}`
+    ? `<a class="pill" href="#/read/${u.b}/${u.c1}${u.v1 > 1 ? '?v=' + u.v1 : ''}">${ic('book')} Open in the reader</a>${O.hasOrig(u.b) ? `<a class="pill" href="#/read/${u.b}/${u.c1}?m=inter${u.v1 > 1 ? '&v=' + u.v1 : ''}">${ic('eye')} ${O.langOf(u.b)} text</a>` : ''}`
     : refs.map(refLink).join('');
   const lead = u.gen ? (u.ins?.[0]?.h || '') : '';
   let h = `<article class="unit narrow"><header class="unit-head">${head}<div class="kicker">${esc(u.k || '')}</div><h1>${esc(u.t)}</h1>${u.tag ? `<p class="muted">${md(u.tag)}</p>` : ''}<div class="chips">${chips}</div></header>`;
@@ -84,11 +89,17 @@ export function renderUnit(u, key, kind = 'daily', head = '') {
   if (qs.length) h += open('ask', SECTION_LABEL.q, qs.map((q, i) => `<div class="qbox"><label for="q-${i}"><i>${i + 1}</i>${md(q)}</label><textarea id="q-${i}" data-ua="${esc(key)}" data-i="${i}" placeholder="Write honestly. No one reads this but you.">${esc(ans[i] || '')}</textarea></div>`).join(''));
   if (u.s) h += open('', SECTION_LABEL.s, `<p>${md(u.s[0])}</p><input type="range" min="1" max="5" step="1" value="${st.s || 3}" data-ustance="${esc(key)}" aria-label="Your stance"><div class="stance-lbl"><span>${esc(u.s[1])}</span><span>${esc(u.s[2])}</span></div><p class="tiny faint mt" id="stance-note">${st.s ? 'Saved. You can revise this any time. Changing your mind is data, not defeat.' : 'Move the slider to record where you stand today.'}</p>`, mins >= 15);
   if (u.p) h += open('prac', SECTION_LABEL.p, paras(u.p), mins >= 15);
-  h += respondHTML(key, { title: u.t, ref: refs[0] || (u.gen ? u.t : ''), questions: qs, label: u.t, open: mins >= 15 });
+  h += respondHTML(key, { title: u.t, ref: refs[0] || (u.gen ? u.t : ''), questions: qs, label: u.t, open: collapse ? false : mins >= 15 });
   if (u.src?.length) h += open('', 'Sources & further reading', `<ul class="src">${u.src.map(s => `<li>${md(s)}</li>`).join('')}</ul><p class="tiny faint">Verify quotations and page references against the editions you use; this app paraphrases scholars rather than quoting them. Original-language data: STEPBible / Tyndale House (CC BY 4.0).</p>`, false);
   h += `<div id="unit-done" class="mt">${doneHTML(st, kind, key)}</div></article>`;
 
   const after = async () => {
+    if (collapse) {
+      $$('.unit > details.blk').forEach((d, i) => {
+        if (i in OPEN.st) d.open = OPEN.st[i];
+        d.addEventListener('toggle', () => { OPEN.st[i] = d.open; });
+      });
+    }
     const box = $('#utext');
     let texts = [], sc = null;
     if (box) {

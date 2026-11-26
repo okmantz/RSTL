@@ -36,7 +36,7 @@ export async function view() {
     <canvas id="hero-arcs" aria-label="Arcs of cross-references between every chapter of the Bible. Tap to open the reader."></canvas>
   </section>
   <div class="grid g2 mt">
-    <div class="card glow today"><div class="between"><div class="kicker">Today · ${esc(u.k.split(' · ')[0])}</div>${done ? `<span class="tag gold">${ic('check')} Done</span>` : `<span class="tag">${u.deep ? 'Deep dive' : 'Guided reading'}</span>`}</div><h2>${esc(u.t)}</h2><p class="muted mb0">${esc((u.tag || '').split('. ')[0])}.</p><div class="row"><a class="btn ${done ? '' : 'pri'} sm" href="#/daily">${done ? 'Revisit' : 'Open study'}</a><a class="btn sm ghost" href="#/daily/journey">Your journey</a></div></div>
+    <div class="card glow today"><div class="between"><div class="kicker">Today · ${esc(u.k.split(' · ')[0])}</div>${done ? `<span class="tag gold">${ic('check')} Done</span>` : `<span class="tag">${u.deep ? 'Deep dive' : u.close ? 'Close reading' : 'Guided reading'}</span>`}</div><h2>${esc(u.t)}</h2><p class="muted mb0">${esc((u.tag || '').split('. ')[0])}.</p><div class="row"><a class="btn ${done ? '' : 'pri'} sm" href="#/daily">${done ? 'Revisit' : 'Open study'}</a><a class="btn sm ghost" href="#/daily/journey">Your journey</a></div></div>
     ${checkinCard()}
   </div>
   <div class="sec-h"><h2>Your progress</h2><a href="#/profile">Profile ${ic('arrowR')}</a></div>
@@ -56,7 +56,7 @@ export async function view() {
   <div class="sec-h"><h2>Explore</h2><a href="#/study">All ${ic('arrowR')}</a></div>
   <div class="grid g-wide">
     ${tile('#/debate', 'debate', 'Debate engine', 'Every serious position at its strongest. Then try to break it.')}
-    ${tile('#/timeline', 'timeline', 'Timeline and 3D places', 'Mesopotamia to the councils, with temples you can walk around.', 'blue')}
+    ${tile('#/timeline', 'timeline', 'Timeline and 3D places', 'Mesopotamia to the councils, with ten places you can walk around.', 'blue')}
     ${tile('#/texts', 'scroll', 'Ancient texts', 'Enoch to the Quran: what each text is and how sure we are.', 'violet')}
     ${tile('#/mind', 'mind', 'My Thinking', 'Evidence profiles for your beliefs, and periodic review.', 'good')}
   </div>

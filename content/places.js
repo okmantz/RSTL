@@ -1,6 +1,7 @@
 // Explorable 3D places for the timeline. Geometry is schematic: proportions follow the sources named in each note,
 // and every part says how firm (or how conjectural) the evidence is. Orientation: entrance faces the viewer (east), north is to the right.
 import { Scene } from '../js/viewer3d.js';
+import { MORE, MORE_ORDER } from './places_more.js';
 
 const stone = '#c9b48a', mud = '#b08a5a', dark = '#7a6a52', gold = '#d6a93a', bronze = '#a8703a', linen = '#e9e2cf', purple = '#7a4c8a', blue = '#4a78b8', grass = '#3d4a35', sand = '#8a7a5a', cedar = '#8a5a34';
 
@@ -147,9 +148,10 @@ const HERP = {
 const HERN = 'Schematic model of the Second Temple complex after Josephus (War 5, Antiquities 15) and the Mishnah (Middot). Josephus and the Mishnah differ on several measurements and the Temple Mount cannot be excavated, so details of the inner courts are reconstruction. Scale is in cubits (about 50 cm), simplified to rectangles.';
 
 export const PLACES = {
+  ...MORE,
   ur: { id: 'ur', n: 'The Great Ziggurat of Ur', era: 'mesopotamia', sub: 'c. 2100 BCE · Mesopotamia', icon: 'mountain', note: URN, parts: URP, build: ur, yaw: -0.7, pitch: 0.42, intro: 'The best-preserved ziggurat of the world Abraham’s family is said to have left (Genesis 11:31). The Babel story (Genesis 11:1–9) is usually read against buildings like this.' },
   tabernacle: { id: 'tabernacle', n: 'The Tabernacle', era: 'israelite', sub: 'As described in Exodus', icon: 'scroll', note: TABN, parts: TABP, build: tabernacle, yaw: -0.55, pitch: 0.62, intro: 'The portable sanctuary of the wilderness traditions, rebuilt here directly from the measurements in Exodus.' },
   solomon: { id: 'solomon', n: 'Solomon’s Temple', era: 'israelite', sub: 'First Temple · 10th–6th c. BCE', icon: 'temple', note: SOLN, parts: SOLP, build: solomon, yaw: -0.65, pitch: 0.45, intro: 'The First Temple, standing until the Babylonians burned it in 586 BCE. Reconstructed from the biblical measurements.' },
   herod: { id: 'herod', n: 'Herod’s Temple Mount', era: 'roman', sub: 'Second Temple · 20 BCE–70 CE', icon: 'columns', note: HERN, parts: HERP, build: herod, yaw: -0.75, pitch: 0.36, intro: 'The Jerusalem of Jesus and Paul: the great platform, the courts, and the sanctuary the Romans destroyed in 70 CE.' }
 };
-export const PLACE_ORDER = ['ur', 'tabernacle', 'solomon', 'herod'];
+export const PLACE_ORDER = ['ur', 'tabernacle', 'gate6', 'solomon', 'babylon', 'qumran', 'bethesda', 'herod', 'tomb', 'artemis'];

@@ -53,8 +53,17 @@ Original-language data: STEPBible / Tyndale House Cambridge, CC BY 4.0 (https://
 ## v7: Explore
 
 - **Debate engine** (`#/debate`): five structured debates (salvation, resurrection, scripture, Jesus, Exodus). Every position has passages, objections, history, assumptions, strengths and weaknesses, plus a Challenge workbench (test assumptions, spot the fallacy, counterexamples, another perspective). Content in `content/debates/`.
-- **Timeline and 3D places** (`#/timeline`, `#/place/:id`): 11 eras, 48 events, and four explorable canvas-3D models (Ur, tabernacle, Solomon's Temple, Herod's Temple) via `js/viewer3d.js`.
+- **Timeline and 3D places** (`#/timeline`, `#/place/:id`): 11 eras, 48 events, and ten explorable canvas-3D models (Ur, Babylon, the tabernacle, a six-chamber gate, Solomon's Temple, Qumran, Bethesda, Herod's Temple, a rock-cut tomb, the Temple of Artemis at Ephesus) via `js/viewer3d.js`.
 - **Ancient texts** (`#/texts`): 46 texts in 7 collections, each split into canonical status, historical evidence, traditional attribution and scholarly uncertainty.
 - **My Thinking** (`#/mind`): propositions with evidence profiles, confidence, and periodic Intellectual Evolution reviews.
 - **Challenge me** (`#/challenge`): the hardest questions for each tradition, from `content/challenges.js`.
 - Design layer in `css/v7.css`. Service worker is `rstl-v7`.
+
+## v8 additions
+
+- **Collapsible profile**: Achievements, Settings, About and Share this app are folded by default.
+- **Daily studies open with only the text.** Every other section is collapsed until you open it (and stays as you left it while you read).
+- **Close readings**: a new kind of daily study (`content/cr_*.js`, assembled by `content/close.js`), each on a short passage with a deep analysis, cross-references and questions. They sit among the guided readings and deep dives in the same book order.
+- **A personal path**: your sequence is stored in your profile, so it never repeats a study until you have been through all of them, existing users keep every day they have already lived, and new studies are appended. Changing season restarts the path.
+- **Six new 3D places**: Babylon, a six-chamber gate, Qumran, the Pool of Bethesda, a first-century rock-cut tomb, and the Temple of Artemis at Ephesus.
+- Service worker is now `rstl-v8`.

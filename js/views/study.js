@@ -22,7 +22,7 @@ export async function hubView() {
   const html = `${pageHead({ kicker: 'Explore', title: 'Go deeper', sub: 'Four ways in. Pick whichever question is on your mind.' })}
   <div class="grid g2 feats">
     ${big('#/debate', 'debate', 'Debate engine', 'Is salvation by faith alone? Did the Exodus happen? Every serious position at its strongest, then try to break it.')}
-    ${big('#/timeline', 'timeline', 'Timeline and 3D places', 'Mesopotamia to the councils. Walk through Ur’s ziggurat, the tabernacle, and both temples.')}
+    ${big('#/timeline', 'timeline', 'Timeline and 3D places', 'Mesopotamia to the councils. Walk through ten places: Ur, Babylon, the tabernacle, both temples, Qumran, a city gate, Bethesda, a tomb and Ephesus.')}
     ${big('#/texts', 'scroll', 'Ancient texts', 'Enoch, Gilgamesh, the Mishnah, the Fathers, the Gita, the Quran: what each is, and how sure we are.')}
     ${big('#/mind', 'mind', 'My Thinking', 'Build an evidence profile for what you believe, and let the app ask later whether you still do.', dueN ? `<span class="tag gold">${ic('bell')} ${dueN} review${dueN > 1 ? 's' : ''} due</span>` : '')}
   </div>

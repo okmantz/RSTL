@@ -2,6 +2,7 @@ import { S, save } from '../store.js';
 import { esc, todayISO, $ } from '../util.js';
 import { ic } from '../icons.js';
 import { rerender } from '../ui.js';
+import * as C from '../curriculum.js';
 import { TRADS, TRAD_ORDER, GOALS, TONES, MINS, SEASONS } from '../../content/traditions.js';
 
 let step = 0, D = null;
@@ -60,7 +61,7 @@ export const actions = {
     const p = S.profile, t = TRADS[D.trad] || TRADS.none;
     const seasonChanged = D.season !== p.season || !p.onboarded;
     Object.assign(p, { onboarded: true, trad: D.trad || 'none', tradOther: D.trad === 'other' ? (D.tradOther || '').trim() : '', goals: D.goals, tone: D.tone, mins: D.mins, name: D.name.trim(), season: D.season || t.start });
-    if (seasonChanged || !p.start) p.start = todayISO();
+    if (seasonChanged || !p.start) C.restartPath();
     save(); D = null; location.hash = '#/';
   }
 };

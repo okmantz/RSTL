@@ -7,6 +7,7 @@ import { unitActions } from './unit.js';
 import { $, $$, esc, debounce, todayISO } from './util.js';
 import { ic } from './icons.js';
 import { avatarHTML } from './avatar.js';
+import * as C from './curriculum.js';
 
 hook(toast, checkAch);
 applyPrefs(S);
@@ -154,7 +155,7 @@ document.addEventListener('keydown', e => {
 (async () => {
   main.innerHTML = loading('Opening the library…');
   try { await B.init(); } catch (e) { main.innerHTML = `<div class="narrow card"><h2>Couldn’t load Bible data</h2><p class="muted">If you opened index.html directly from your computer, browsers block local data loading. Host it on GitHub Pages, or run <code>python3 -m http.server</code> in this folder and open http://localhost:8000.</p></div>`; return; }
-  if (!S.profile.start) { S.profile.start = todayISO(); }
+  if (!S.profile.start) { C.restartPath(); }
   chrome(); await render(false); checkAch();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
 })();

@@ -164,6 +164,16 @@ blockquote.claim{margin:14px 0;padding:14px 18px;border-left:3px solid var(--acc
 .chal .inner{margin-top:14px}
 .chal .inner>summary{text-transform:none;letter-spacing:.01em;font-size:.88rem}
 
+/* ---------- collapsible profile sections ---------- */
+.blk.fold{margin:18px 0 0}
+.blk.fold>summary{text-transform:none;letter-spacing:0;padding:18px 20px}
+.blk.fold>summary::before{display:none}
+.blk.fold>summary .ft{font:600 1.2rem var(--serif);color:var(--text)}
+.blk.fold>summary .fm{margin-left:auto;margin-right:6px;font:600 .8rem var(--sans);color:var(--faint);text-transform:none;letter-spacing:0}
+.blk.fold .in{padding:2px 20px 20px}
+.blk.fold .in .settings{padding:0}
+@media(max-width:600px){.blk.fold>summary{padding:16px}.blk.fold>summary .fm{display:none}.blk.fold .in{padding:2px 16px 18px}}
+
 /* ---------- navigation polish ---------- */
 .bnav a.on .bi{background:color-mix(in srgb,var(--accent) 16%,transparent);border-radius:12px}
 
