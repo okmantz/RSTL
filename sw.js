@@ -11,7 +11,7 @@ self.addEventListener('fetch', e => {
   e.respondWith((async () => {
     const cache = await caches.open(isData ? DATA : CODE);
     if (isData) { const hit = await cache.match(req); if (hit) return hit; }
-    try { const res = await fetch(req); if (res.ok) cache.put(req, res.clone()); return res; }
+    try { const res = await fetch(req, isData ? undefined : { cache: 'no-cache' }); if (res.ok) cache.put(req, res.clone()); return res; }
     catch (err) { const hit = await cache.match(req) || await caches.match(req); if (hit) return hit; if (req.mode === 'navigate') return (await cache.match('index.html')) || Response.error(); return Response.error(); }
   })());
 });
