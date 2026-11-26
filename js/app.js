@@ -15,7 +15,7 @@ const V = {
   home: () => import('./views/home.js'), daily: () => import('./views/daily.js'), read: () => import('./views/read.js'),
   study: () => import('./views/study.js'), questions: () => import('./views/questions.js'), lab: () => import('./views/lab.js'),
   beliefs: () => import('./views/beliefs.js'), library: () => import('./views/library.js'), profile: () => import('./views/profile.js'), search: () => import('./views/search.js'),
-  welcome: () => import('./views/welcome.js'), journal: () => import('./views/journal.js'), resources: () => import('./views/resources.js'), word: () => import('./views/word.js')
+  welcome: () => import('./views/welcome.js'), debate: () => import('./views/debate.js'), timeline: () => import('./views/timeline.js'), texts: () => import('./views/texts.js'), mind: () => import('./views/mind.js'), challenges: () => import('./views/challenges.js'), journal: () => import('./views/journal.js'), resources: () => import('./views/resources.js'), word: () => import('./views/word.js')
 };
 const ROUTES = [
   [/^\/?$/, 'home', m => m.view, 'home'],
@@ -44,6 +44,18 @@ const ROUTES = [
   [/^\/study\/beliefs\/statement\/?$/, 'beliefs', m => m.statementView, 'study'],
   [/^\/study\/library\/?$/, 'library', m => m.view, 'study'],
   [/^\/study\/voice\/([\w-]+)\/?$/, 'library', m => m.view, 'study'],
+  [/^\/debate\/?$/, 'debate', m => m.indexView, 'study'],
+  [/^\/debate\/([\w-]+)\/?$/, 'debate', m => m.view, 'study'],
+  [/^\/debate\/([\w-]+)\/(compare|[A-E])\/?$/, 'debate', m => m.view, 'study'],
+  [/^\/timeline(?:\/([\w-]+))?\/?$/, 'timeline', m => m.view, 'study'],
+  [/^\/place\/([\w-]+)\/?$/, 'timeline', m => m.placeView, 'study'],
+  [/^\/texts\/?$/, 'texts', m => m.hubView, 'study'],
+  [/^\/texts\/([\w-]+)\/?$/, 'texts', m => m.view, 'study'],
+  [/^\/mind\/?$/, 'mind', m => m.view, 'study'],
+  [/^\/mind\/new\/?$/, 'mind', m => m.newView, 'study'],
+  [/^\/mind\/([\w-]+)\/?$/, 'mind', m => m.propView, 'study'],
+  [/^\/mind\/([\w-]+)\/review\/?$/, 'mind', m => m.reviewView, 'study'],
+  [/^\/challenge\/?$/, 'challenges', m => m.view, 'study'],
   [/^\/profile\/?$/, 'profile', m => m.view, 'profile']
 ];
 const ACTIONS = {};
@@ -96,7 +108,7 @@ window.addEventListener('app:rerender', () => render(true));
 window.addEventListener('unit:done', async e => { if (String(e.detail).startsWith('lesson:')) { try { (await V.study()).checkTrack(e.detail); } catch (er) { } } });
 window.addEventListener('app:plans', async () => { try { (await V.study()).checkPlans(); } catch (e) { } });
 window.addEventListener('resize', debounce(() => ctx.resize.forEach(f => f()), 150));
-const NAV = [['/', 'home', 'home', 'Home'], ['/read', 'read', 'book', 'Read'], ['/daily', 'daily', 'sun', 'Daily'], ['/study', 'study', 'cap', 'Study'], ['/profile', 'profile', 'user', 'Profile']];
+const NAV = [['/', 'home', 'home', 'Home'], ['/read', 'read', 'book', 'Read'], ['/daily', 'daily', 'sun', 'Daily'], ['/study', 'study', 'compass', 'Explore'], ['/profile', 'profile', 'user', 'Profile']];
 const THEMES = [['dark', 'moon', 'Dark'], ['light', 'sun', 'Light'], ['sepia', 'scroll', 'Sepia']];
 function themeBtn() {
   const i = THEMES.findIndex(t => t[0] === S.profile.theme), cur = THEMES[i < 0 ? 0 : i], nxt = THEMES[(i + 1) % THEMES.length];

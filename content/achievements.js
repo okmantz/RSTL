@@ -45,6 +45,13 @@ export default [
   { id: 'steel1', n: 'Steelman', d: 'Complete all four steps of a steelman: view, strongest objection, what would change your mind, and what you would say to a critic.', i: 'target', t: s => s.steels >= 1 },
   { id: 'ask5', n: 'Question Asker', d: 'Write 5 questions of your own.', i: 'help', t: s => s.myqs >= 5 },
   { id: 'react25', n: 'On the Record', d: 'React to 25 sections: persuaded, unsettled, disagree or dig deeper.', i: 'eye', t: s => s.reacts >= 25 },
+  { id: 'dbt1', n: 'Both Sides', d: 'Read five positions in the Debate engine.', i: 'debate', t: s => s.dbtPos >= 5 },
+  { id: 'dbt25', n: 'Devil’s Advocate', d: 'Challenge ten arguments in the debate workbench.', i: 'target', t: s => s.dbtChal >= 10 },
+  { id: 'tl10', n: 'Time Traveler', d: 'Open ten events on the timeline.', i: 'timeline', t: s => s.tlEv >= 10 },
+  { id: 'place4', n: 'Architect', d: 'Explore all four 3D places.', i: 'temple', t: s => s.places >= 4 },
+  { id: 'tx15', n: 'Archivist', d: 'Open fifteen ancient texts.', i: 'scroll', t: s => s.txSeen >= 15 },
+  { id: 'mind1', n: 'On the Record, With Evidence', d: 'Create a proposition in My Thinking.', i: 'mind', t: s => s.props >= 1 },
+  { id: 'rev1', n: 'Second Thoughts', d: 'Complete an Intellectual Evolution review.', i: 'trend', t: s => s.reviews >= 1 },
   { id: 'lvl5', n: 'Pilgrim', d: 'Reach level 5.', i: 'path', t: s => s.level >= 5 },
   { id: 'lvl10', n: 'Knight of Faith', d: 'Reach level 10.', i: 'shield', t: s => s.level >= 10 }
 ];

@@ -49,3 +49,12 @@ Original-language data: STEPBible / Tyndale House Cambridge, CC BY 4.0 (https://
 - **Reader**: tidy toolbar card, chapter header with previous/next buttons, comfortable reading width, Old / New / Apocrypha filter on the book list.
 - **Study hub** grouped into Courses, Test your thinking, and Other voices; consistent back links and page headers; onboarding with step count; profile settings as clear rows with a visual theme picker.
 - Service worker cache bumped to `rstl-v6`.
+
+## v7: Explore
+
+- **Debate engine** (`#/debate`): five structured debates (salvation, resurrection, scripture, Jesus, Exodus). Every position has passages, objections, history, assumptions, strengths and weaknesses, plus a Challenge workbench (test assumptions, spot the fallacy, counterexamples, another perspective). Content in `content/debates/`.
+- **Timeline and 3D places** (`#/timeline`, `#/place/:id`): 11 eras, 48 events, and four explorable canvas-3D models (Ur, tabernacle, Solomon's Temple, Herod's Temple) via `js/viewer3d.js`.
+- **Ancient texts** (`#/texts`): 46 texts in 7 collections, each split into canonical status, historical evidence, traditional attribution and scholarly uncertainty.
+- **My Thinking** (`#/mind`): propositions with evidence profiles, confidence, and periodic Intellectual Evolution reviews.
+- **Challenge me** (`#/challenge`): the hardest questions for each tradition, from `content/challenges.js`.
+- Design layer in `css/v7.css`. Service worker is `rstl-v7`.

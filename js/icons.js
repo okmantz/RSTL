@@ -69,9 +69,20 @@ const D = {
   thread: '<path d="M4 6c6 0 4 6 8 6s2 6 8 6"/><circle cx="4" cy="6" r="1.500"/><circle cx="20" cy="18" r="1.500"/>',
   download: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
   refresh: '<path d="M20 11a8 8 0 0 0-14-4.500L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4.500L20 15M20 20v-5h-5"/>',
-  inbox: '<path d="M3.500 13.500 6 5h12l2.500 8.500V19a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z"/><path d="M3.500 13.500H8l1 2.500h6l1-2.500h4.500"/>'
-};
-// Tolerate stray ".500" style decimals above; they are valid SVG numbers.
+  inbox: '<path d="M3.500 13.500 6 5h12l2.500 8.500V19a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z"/><path d="M3.500 13.500H8l1 2.500h6l1-2.500h4.500"/>',
+  debate: '<path d="M3.500 5h10v7h-5l-3 2.500V12h-2z"/><path d="M10.500 14.500V16h4.500l3 2.500V16h2.500V9h-4"/>',
+  timeline: '<path d="M3 12h18"/><circle cx="6.500" cy="12" r="2"/><circle cx="12.500" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6.500 8V5M12.500 16v3M18 8V5"/>',
+  temple: '<path d="M3 9.500 12 4l9 5.500z"/><path d="M5.500 10v8M9.500 10v8M14.500 10v8M18.500 10v8M3.500 20.500h17"/>',
+  mind: '<path d="M9.500 4a3.500 3.500 0 0 0-3.500 3.500A3.500 3.500 0 0 0 4.500 11c0 1.500.8 2.600 1.800 3.100A3.300 3.300 0 0 0 9.500 19a2.500 2.500 0 0 0 2.500-2.500v-11A2.500 2.500 0 0 0 9.500 4z"/><path d="M14.500 4A3.500 3.500 0 0 1 18 7.500c1 .6 1.500 1.700 1.500 3 0 1.300-.7 2.400-1.800 3A3.300 3.300 0 0 1 14.500 19 2.500 2.500 0 0 1 12 16.500"/>',
+  cube: '<path d="M12 3 20 7.500v9L12 21 4 16.500v-9z"/><path d="M4 7.500 12 12l8-4.500M12 12v9"/>',
+  trend: '<path d="M3.500 17.500 9 12l3.500 3.500 8-8"/><path d="M15 7.500h5.500V13"/>',
+  bell: '<path d="M6 16.500V11a6 6 0 0 1 12 0v5.500l1.500 1.500h-15z"/><path d="M10 20.500a2 2 0 0 0 4 0"/>',
+  play: '<path d="M8 5.500v13l11-6.500z"/>',
+  pause: '<path d="M8 5.500v13M16 5.500v13"/>',
+  rotate: '<path d="M20 12a8 8 0 1 1-2.400-5.700"/><path d="M20 4v4.500h-4.500"/>',
+  filter: '<path d="M4 6h16M7 12h10M10 18h4"/>',
+  layout: '<rect x="3.500" y="4" width="17" height="16" rx="2"/><path d="M3.500 9.500h17M9.500 9.500V20"/>'
+};// Tolerate stray ".500" style decimals above; they are valid SVG numbers.
 export const ic = (n, cls = '') => D[n] ? `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${D[n]}</svg>` : '';
 export const hasIcon = n => !!D[n];
 export const ICON_NAMES = Object.keys(D);

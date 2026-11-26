@@ -17,33 +17,39 @@ export async function hubView() {
   let next = null;
   for (const t of T) { const n = t.lessons.findIndex((_, i) => !done(t.id, i)); if (n >= 0 && (t.lessons.some((_, i) => done(t.id, i)) || !next)) { next = { t, n }; if (t.lessons.some((_, i) => done(t.id, i))) break; } }
   const nT = T.reduce((n, t) => n + t.lessons.length, 0);
-  const html = `${pageHead({ kicker: 'Go deeper', title: 'Study', sub: 'Longer paths for going deeper: courses, arguments, other voices and the texts around the Bible. Each one invites you to question it, and to answer back.' })}
-  ${next ? `<a class="card glow link-card" href="#/study/track/${next.t.id}/${next.n}"><span class="tile-ic">${ic(next.t.icon || 'compass')}</span><div class="lc-b"><div class="kicker">${next.t.lessons.some((_, i) => done(next.t.id, i)) ? 'Continue your track' : 'Start here'}</div><b>${esc(next.t.title)}: ${esc(next.t.lessons[next.n].t)}</b></div><span class="tile-go">${ic('chevron')}</span></a>` : ''}
-  <div class="sec-h"><h2>Courses and guided paths</h2></div>
-  <div class="grid g-wide">
-    ${tile('#/study/tracks', 'compass', 'Study Tracks', `${T.length} multi-lesson courses, ${nT} lessons.`)}
-    ${tile('#/study/seminar', 'spark', 'Beneath the Absolute Seminar', 'The book’s full argument, claim by claim, with objections.')}
-    ${tile('#/study/plans', 'calendar', 'Reading Plans', 'Gospels in 30 days, the Torah, Wisdom, the Hard Texts…')}
-    ${tile('#/study/books', 'books', 'Book Guides', 'All 66 books + Apocrypha: date, authorship, genre, and the hard question each raises.')}
+  const dueN = S.mind.props.filter(p => Date.now() >= (p.rev?.length ? p.rev[p.rev.length - 1].ts : p.created) + (p.cad || S.mind.cad || 30) * 864e5).length;
+  const big = (href, icn, t, x, extra = '') => `<a class="card feat" href="${href}"><span class="tile-ic">${ic(icn)}</span><h3>${t}</h3><p>${x}</p>${extra}</a>`;
+  const html = `${pageHead({ kicker: 'Explore', title: 'Go deeper', sub: 'Four ways in. Pick whichever question is on your mind.' })}
+  <div class="grid g2 feats">
+    ${big('#/debate', 'debate', 'Debate engine', 'Is salvation by faith alone? Did the Exodus happen? Every serious position at its strongest, then try to break it.')}
+    ${big('#/timeline', 'timeline', 'Timeline and 3D places', 'Mesopotamia to the councils. Walk through Ur’s ziggurat, the tabernacle, and both temples.')}
+    ${big('#/texts', 'scroll', 'Ancient texts', 'Enoch, Gilgamesh, the Mishnah, the Fathers, the Gita, the Quran: what each is, and how sure we are.')}
+    ${big('#/mind', 'mind', 'My Thinking', 'Build an evidence profile for what you believe, and let the app ask later whether you still do.', dueN ? `<span class="tag gold">${ic('bell')} ${dueN} review${dueN > 1 ? 's' : ''} due</span>` : '')}
   </div>
-  <div class="sec-h"><h2>Test your thinking</h2></div>
+  <a class="card glow link-card mt" href="#/challenge"><span class="tile-ic">${ic('target')}</span><div class="lc-b"><div class="kicker">Challenge me</div><b>The hardest questions for your own tradition, and for everyone else’s</b></div><span class="tile-go">${ic('chevron')}</span></a>
+  ${next ? `<a class="card link-card mt" href="#/study/track/${next.t.id}/${next.n}"><span class="tile-ic">${ic(next.t.icon || 'compass')}</span><div class="lc-b"><div class="kicker">${next.t.lessons.some((_, i) => done(next.t.id, i)) ? 'Continue your track' : 'Guided course'}</div><b>${esc(next.t.title)}: ${esc(next.t.lessons[next.n].t)}</b></div><span class="tile-go">${ic('chevron')}</span></a>` : ''}
+  <div class="sec-h"><h2>Courses and reference</h2></div>
   <div class="grid g-wide">
-    ${tile('#/study/lab', 'scale', 'Argument Lab', 'Accept, doubt or reject each premise. Watch the conclusion respond.', 'violet')}
-    ${tile('#/study/questions', 'flame', 'Big Questions', 'Each with the best case for every serious position.', 'bad')}
-    ${tile('#/study/beliefs', 'map', 'Belief Map', 'Snapshot what you hold. Re-take it. Measure the drift.', 'good')}
-    ${tile('#/journal', 'journal', 'Journal', 'Your responses, questions, dig list, and replies to your past self.')}
+    ${tile('#/study/tracks', 'compass', 'Study Tracks', `${T.length} courses, ${nT} lessons.`)}
+    ${tile('#/study/seminar', 'spark', 'Beneath the Absolute Seminar', 'The book’s argument, claim by claim, with objections.')}
+    ${tile('#/study/plans', 'calendar', 'Reading Plans', 'Gospels in 30 days, the Torah, the Hard Texts…')}
+    ${tile('#/study/books', 'books', 'Book Guides', 'All 66 books and the Apocrypha, with the hard question each raises.')}
   </div>
-  <div class="sec-h"><h2>Other voices and texts</h2></div>
+  <div class="sec-h"><h2>Sharpen your thinking</h2></div>
   <div class="grid g-wide">
-    ${tile('#/study/library', 'urn', 'Library of Voices', 'Apocrypha, Enoch, early Church, Quran, Gita, Buddha, Confucius, philosophers.', 'blue')}
-    ${tile('#/study/resources', 'globe', 'Explore More Texts', 'Apocrypha, canon history, Second Temple writings, the Fathers, other scriptures, literature.', 'blue')}
+    ${tile('#/study/lab', 'scale', 'Argument Lab', 'Accept, doubt or reject each premise of a famous argument.', 'violet')}
+    ${tile('#/study/questions', 'flame', 'Big Questions', 'The best case for every serious position.', 'bad')}
+    ${tile('#/study/beliefs', 'map', 'Belief Map', 'Snapshot what you hold and measure the drift.', 'good')}
+    ${tile('#/study/library', 'urn', 'Library of Voices', 'Excerpts: Apocrypha, Fathers, Quran, Gita, philosophers.', 'blue')}
+    ${tile('#/study/resources', 'globe', 'More Texts and Resources', 'Canon history, translations, further reading.', 'blue')}
+    ${tile('#/journal', 'journal', 'Journal', 'Everything you have written and asked.')}
   </div>`;
-  return { html };
+  return { html, title: 'Explore' };
 }
 /* ---------- tracks ---------- */
 export async function tracksView() {
   const T = (await tracks()).filter(t => t.id !== 'seminar');
-  const html = `${pageHead({ back: 'Study', backTo: '#/study', kicker: 'Courses', title: 'Study Tracks', sub: 'Multi-lesson courses. Each lesson takes about fifteen minutes and ends with questions to answer in your own words.' })}<div class="grid g2">${T.map(t => trackCard(t)).join('')}</div>`;
+  const html = `${pageHead({ back: 'Explore', backTo: '#/study', kicker: 'Courses', title: 'Study Tracks', sub: 'Multi-lesson courses. Each lesson takes about fifteen minutes and ends with questions to answer in your own words.' })}<div class="grid g2">${T.map(t => trackCard(t)).join('')}</div>`;
   return { html };
 }
 const trackCard = t => { const d = t.lessons.filter((_, i) => done(t.id, i)).length; return `<a class="card" href="#/study/track/${t.id}"><div class="between"><span class="tile-ic">${ic(t.icon)}</span><span class="tag ${d === t.lessons.length ? 'gold' : ''}">${d === t.lessons.length ? ic('check') + ' ' : ''}${d}/${t.lessons.length}</span></div><h3 style="margin-top:14px">${esc(t.title)}</h3><p class="muted small">${esc(t.desc)}</p><div class="bar thin"><i style="width:${Math.round(d / t.lessons.length * 100)}%"></i></div></a>`; };

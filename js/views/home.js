@@ -9,6 +9,9 @@ import { ic } from '../icons.js';
 import { tile } from '../ui.js';
 import * as C from '../curriculum.js';
 import { TRADS } from '../../content/traditions.js';
+import { dueProps } from './mind.js';
+import { challengesFor, LENS } from '../../content/challenges.js';
+import { dayNumber } from '../util.js';
 
 const greet = () => { const h = new Date().getHours(); return h < 5 ? 'Still up' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
 export const actions = { ...checkinActions };
@@ -16,6 +19,7 @@ export async function view() {
   const li = levelInfo(), st = streak(), iso = todayISO();
   const { idx } = C.indexFor(iso), u = C.unitAt(idx), done = S.units['daily:' + iso]?.done;
   const trad = TRADS[S.profile.trad] || TRADS.none;
+  const due = dueProps(), chs = challengesFor(S.profile.trad || 'none'), chal = chs[((dayNumber(iso) % chs.length) + chs.length) % chs.length];
   const last = S.last, lastHref = last ? `#/read/${last.b}/${last.c}` : '#/read/0/1', lastLbl = last ? B.label(last.b, last.c) : 'Genesis 1';
   const recent = Object.entries(S.ach).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([id]) => ACH.find(a => a.id === id)).filter(Boolean);
   const openQ = S.myq.filter(q => (q.st || 'open') !== 'done').length;
@@ -47,14 +51,14 @@ export async function view() {
     <div class="stat"><b>${S.xp}</b><span>total XP</span></div>
   </div>
   ${(openQ || dig) ? `<a class="card mt link-card" href="#/journal?t=${openQ ? 'q' : 'dig'}"><span class="tile-ic">${ic('journal')}</span><div class="lc-b"><div class="kicker">Left open</div><b>${openQ ? `${openQ} of your own question${openQ > 1 ? 's' : ''} still open` : ''}${openQ && dig ? ' · ' : ''}${dig ? `${dig} section${dig > 1 ? 's' : ''} marked to dig into` : ''}</b></div><span class="tile-go">${ic('chevron')}</span></a>` : ''}
-  <div class="sec-h"><h2>Where to dig</h2></div>
-  <div class="grid g3">
-    ${tile('#/study/tracks', 'compass', 'Study Tracks', 'Multi-lesson courses: canon, God on trial, the Trinity, Jesus, faith, ethics and more.')}
-    ${tile('#/study/resources', 'globe', 'Explore More Texts', 'Apocrypha, canon history, the Fathers, other scriptures, literature.', 'blue')}
-    ${tile('#/study/lab', 'scale', 'Argument Lab', 'Test the great arguments premise by premise. See where you break.', 'violet')}
-    ${tile('#/study/questions', 'flame', 'Big Questions', 'Positions, pressure points and the passages that will not cooperate.', 'bad')}
-    ${tile('#/study/beliefs', 'map', 'Belief Map', 'Chart what you hold. Return in a month and see what moved.', 'good')}
-    ${tile('#/journal', 'journal', 'Journal', 'Everything you have written and asked, and replies to your past self.')}
+  ${due.length ? `<a class="card mt link-card glow" href="#/mind/${due[0].id}/review"><span class="tile-ic">${ic('bell')}</span><div class="lc-b"><div class="kicker">Revisit a conclusion</div><b>Do you still believe: “${esc(due[0].t)}”?</b></div><span class="tile-go">${ic('chevron')}</span></a>` : ''}
+  <a class="card mt link-card" href="#/challenge"><span class="tile-ic">${ic('target')}</span><div class="lc-b"><div class="kicker">Challenge of the day${S.profile.trad && S.profile.trad !== 'none' ? ' · for ' + esc(LENS[S.profile.trad] || '') : ''}</div><b>${esc(chal.title)}</b><p class="small muted mb0">${esc(chal.claim)}</p></div><span class="tile-go">${ic('chevron')}</span></a>
+  <div class="sec-h"><h2>Explore</h2><a href="#/study">All ${ic('arrowR')}</a></div>
+  <div class="grid g-wide">
+    ${tile('#/debate', 'debate', 'Debate engine', 'Every serious position at its strongest. Then try to break it.')}
+    ${tile('#/timeline', 'timeline', 'Timeline and 3D places', 'Mesopotamia to the councils, with temples you can walk around.', 'blue')}
+    ${tile('#/texts', 'scroll', 'Ancient texts', 'Enoch to the Quran: what each text is and how sure we are.', 'violet')}
+    ${tile('#/mind', 'mind', 'My Thinking', 'Evidence profiles for your beliefs, and periodic review.', 'good')}
   </div>
   <p class="small muted mt">${esc(trad.hello)}</p>
   ${recent.length ? `<div class="sec-h"><h2>Recent achievements</h2><a href="#/profile">All ${ic('arrowR')}</a></div><div class="grid g2">${recent.map(a => `<div class="ach"><div class="ai">${ic(a.i)}</div><div><h4>${esc(a.n)}</h4><p>${esc(a.d)}</p></div></div>`).join('')}</div>` : ''}`;

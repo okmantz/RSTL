@@ -14,14 +14,20 @@ const defaults = () => ({
   myq: [],       // the reader's own questions: { id, t, ref, src, ts, st:'open'|'partial'|'done', n }
   react: {},     // per-section reactions: key#section -> { v, ttl, ts }
   rep: {},       // replies to one's past self: entryId -> [{ t, ts }]
-  bn: {}         // belief notes: propositionId -> text
+  bn: {},        // belief notes: propositionId -> text
+  mind: { props: [], cad: 30 },  // My Thinking: propositions with evidence profiles and review history; cad = days between reviews
+  dbt: {},       // debates: debateId -> { seen:{pos:ts}, mine:[{pos,ts}], ch:{'pos.arg':{...}} }
+  tl: { seen: {}, places: {} },   // timeline: events opened, 3D places explored
+  tx: { seen: {} }                // library texts opened
 });
 function merge(d, o) {
   Object.assign(d, o);
   d.profile = Object.assign(defaults().profile, o.profile || {});
   d.beliefs = Object.assign({ cur: {}, snaps: [] }, o.beliefs || {});
   d.stats = Object.assign({ xrefs: 0 }, o.stats || {});
-  ['resp', 'react', 'rep', 'bn'].forEach(k => { if (!d[k] || typeof d[k] !== 'object') d[k] = {}; });
+  ['resp', 'react', 'rep', 'bn', 'dbt'].forEach(k => { if (!d[k] || typeof d[k] !== 'object') d[k] = {}; });
+  d.mind = Object.assign({ props: [], cad: 30 }, o.mind || {}); if (!Array.isArray(d.mind.props)) d.mind.props = [];
+  d.tl = Object.assign({ seen: {}, places: {} }, o.tl || {}); d.tx = Object.assign({ seen: {} }, o.tx || {});
   if (!Array.isArray(d.myq)) d.myq = [];
   if (!Array.isArray(d.journal)) d.journal = [];
   if (!d.profile.avatar || typeof d.profile.avatar !== 'object') d.profile.avatar = { k: 'mono', p: 0, img: '' };

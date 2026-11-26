@@ -1,7 +1,7 @@
 /* Service worker: network-first for app code, cache-first for (immutable) Bible data. Bump VERSION on release. */
-const VERSION = 'rstl-v6';
+const VERSION = 'rstl-v7';
 const CODE = VERSION + '-code', DATA = VERSION + '-data';
-const SHELF = ['./', 'index.html', 'css/app.css', 'js/app.js', 'js/icons.js', 'js/store.js', 'manifest.webmanifest', 'icons/icon.svg'];
+const SHELF = ['./', 'index.html', 'css/app.css', 'css/v7.css', 'js/app.js', 'js/icons.js', 'js/store.js', 'manifest.webmanifest', 'icons/icon.svg'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CODE).then(c => c.addAll(SHELF)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => !k.startsWith(VERSION)).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
